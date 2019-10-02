@@ -10,8 +10,9 @@
 #include <arpa/inet.h>
 #include <net/ethernet.h>
 #include <linux/ip.h>
-#define TWOSPACES "  "
-#define FOURSPACES "     "
+#define ONESPACE "    "
+#define TWOSPACES "        "
+#define THREESPACES "            "
 extern char *ether_ntoa (__const struct ether_addr *__addr) __THROW;
 
 #endif //NETWORK_ANA_INCLUDES_H

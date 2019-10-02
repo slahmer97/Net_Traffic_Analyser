@@ -13,6 +13,12 @@ char * arp_op_str[] = {
         [ARPOP_InREPLY]   = "InARP reply",
         [ARPOP_NAK]       = "(ATM)ARP NAK"
 };
+char * ether_type_str[] = {
+        [ETHERTYPE_IPV6]   = "IPV6",
+        [ETHERTYPE_IP]     = "IPV4",
+        [ETHERTYPE_ARP]    = "ARP",
+        [ETHERTYPE_REVARP] = "Reverse ARP"
+};
 void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_char*packet){
     static int count = 1;
     fprintf(stdout,"<-----------------------------%d----------------------------->>>\n",count++);
@@ -22,7 +28,7 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     struct ether_header* etherHeader =( struct ether_header*)packet;
     fflush(stdout);
     unsigned short type = htons(etherHeader->ether_type);
-    fprintf(stdout,"%s[+] %s (%x), Src : (%s), Dst : (%s) \n",TWOSPACES,"Ethernet II",
+    fprintf(stdout,"[+] %s (%x), Src : (%s), Dst : (%s) \n","Ethernet II",
             type,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost),
             ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
   //  fprintf(stdout,"%s[+] ethertype : %x\n",TWOSPACES,type);
@@ -38,11 +44,9 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
             break;
         case ETHERTYPE_IPV6:
             internet_layer_handler(data,6);
-           // ip_handler(&packet[ether_header_size]);
             break;
         case ETHERTYPE_IP :
             internet_layer_handler(data,4);
-            // ip_handler(&packet[ether_header_size]);
             break;
         case ETHERTYPE_ARP:
             arp_handler(data);
@@ -55,22 +59,15 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     fflush(stdout);
 }
 static void arp_handler(const u_char*packet){
-    fprintf(stdout,"%s[+] arp_handler %lu\n",FOURSPACES,sizeof(*((struct arphdr*)packet)));
     struct arphdr* arp_header = (struct arphdr*)packet;
     unsigned short hardware_type = arp_header->ar_hrd;
     unsigned short protocol_type = arp_header->ar_pro;
     unsigned char  arp_op_code   = htons(arp_header->ar_op);
 
 
-    //check display option
- //   printf("%s╞══ Proto = ARP, Adress resolution\n");
-//    printf("%s├ hardware type  : %s\n",
-  //         (ntohs(arp_header->ar_hrd) == 1) ? "Ethernet" : "Unknown");
-   // printf("%s├ protocol type  : %s\n",
-   //        (ntohs(arp_header->ar_pro) == 0x0800) ? "IPv4" : "Unknown");
-    fprintf(stdout,"%s[+] operation      : %s\n",TWOSPACES,arp_op_str[arp_op_code]);
+    fprintf(stdout,"%s[.] op      : %s\n",ONESPACE,arp_op_str[arp_op_code]);
 }
 void rarp_handler(const u_char*packet){
-    fprintf(stdout,"%s[+] reverse arp\n",TWOSPACES);
+    fprintf(stdout,"%s[.] reverse arp\n",ONESPACE);
 }
 

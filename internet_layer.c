@@ -26,9 +26,9 @@ static void ipv6_handler(const u_char * packet){
      char dip[INET6_ADDRSTRLEN];
      inet_ntop(AF_INET6, &(ipv6Header->daddr),dip, INET6_ADDRSTRLEN);
      inet_ntop(AF_INET6, &(ipv6Header->saddr),sip, INET6_ADDRSTRLEN);
-     fprintf(stdout,"\t[+] version   : %x\n",ipv6Header->version);
-     fprintf(stdout,"\t[+] source ip : %s\n",sip);
-     fprintf(stdout,"\t[+] dest ip   : %s\n",dip);
+     fprintf(stdout,"%s[+] IPV6, src : (%s), dst : (%s)\n",ONESPACE,sip,dip);
+     fprintf(stdout,"%s[..] version   : %x\n",TWOSPACES,ipv6Header->version);
+
      fflush(stdout);
 
 
@@ -39,20 +39,22 @@ static void ipv4_handler(const u_char * packet){
     char dip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET,&(ipHeader->saddr),sip,INET_ADDRSTRLEN);
     inet_ntop(AF_INET,&(ipHeader->daddr),dip,INET_ADDRSTRLEN);
-    fprintf(stdout,"\t [+] version   : %x\n",ipHeader->version);
-    fprintf(stdout,"\t [+] source ip : %s\n",sip);
-    fprintf(stdout,"\t [+] dest ip   : %s\n",dip);
-    fprintf(stdout,"\t [+] ihl       : %d\n",ipHeader->ihl);
-    fprintf(stdout,"\t [+] ttl       : %d\n",ipHeader->ttl);
-    fprintf(stdout,"\t [+] checksum  : %x\n",ipHeader->check);
-    fprintf(stdout,"\t [+] total len : %d\n",ipHeader->tot_len);
-    fprintf(stdout,"\t [+] id        : %d\n",ipHeader->id);
-    fprintf(stdout,"\t [+] frag off  : %d\n",ipHeader->frag_off);
+    fprintf(stdout,"%s[+] IPV4, src : (%s), dst : (%s)\n",ONESPACE,sip,dip);
+    fprintf(stdout,"%s[..] version   : %x\n",TWOSPACES,ipHeader->version);
+    fprintf(stdout,"%s[..] ihl       : %d\n",TWOSPACES,ipHeader->ihl);
+    fprintf(stdout,"%s[..] ttl       : %d\n",TWOSPACES,ipHeader->ttl);
+    fprintf(stdout,"%s[..] checksum  : %x\n",TWOSPACES,ipHeader->check);
+    fprintf(stdout,"%s[..] total len : %d\n",TWOSPACES,ipHeader->tot_len);
+    fprintf(stdout,"%s[..] id        : %d\n",TWOSPACES,ipHeader->id);
+    fprintf(stdout,"%s[..] frag off  : %d\n",TWOSPACES,ipHeader->frag_off);
     fflush(stdout);
+
+
+    const u_char * data = &packet[sizeof(struct iphdr)];
 
     switch (ipHeader->protocol){
         default:
-            fprintf(stderr,"\t [-] Protocol not recognized yet %x\n",ipHeader->protocol);
+            fprintf(stderr,"%s[-] Protocol not recognized yet %x\n",TWOSPACES,ipHeader->protocol);
             break;
         case 0x01: // ICMP
 
