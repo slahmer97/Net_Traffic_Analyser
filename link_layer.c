@@ -22,9 +22,12 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     struct ether_header* etherHeader =( struct ether_header*)packet;
     fflush(stdout);
     unsigned short type = htons(etherHeader->ether_type);
-    fprintf(stdout,"%s[+] ethertype : %x\n",TWOSPACES,type);
-    fprintf(stdout,"%s[+] source mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost));
-    fprintf(stdout,"%s[+] destination mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
+    fprintf(stdout,"%s[+] %s (%x), Src : (%s), Dst : (%s) \n",TWOSPACES,"Ethernet II",
+            type,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost),
+            ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
+  //  fprintf(stdout,"%s[+] ethertype : %x\n",TWOSPACES,type);
+  //  fprintf(stdout,"%s[+] source mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost));
+   // fprintf(stdout,"%s[+] destination mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
 
     int ether_header_size = sizeof( struct ether_header);
     //SAVE
