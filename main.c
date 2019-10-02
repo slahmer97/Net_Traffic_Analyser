@@ -1,16 +1,9 @@
-#define __BIG_ENDIAN_BITFIELD 1
 
 #include <stdio.h>
 #include "stdlib.h"
-#include <pcap.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <net/ethernet.h>
-#include <linux/ip.h>
-#include "my_const.h"
-extern char *ether_ntoa (__const struct ether_addr *__addr) __THROW;
-extern char *ether_ntoa_r (__const struct ether_addr *__addr, char *__buf)__THROW;
+
+#include "link_layer.h"
+
 /*
 void display_all_int(pcap_if_t * t){
     char* tmp;
@@ -43,52 +36,7 @@ void display_all_int(pcap_if_t * t){
     }
 }
  */
-void ip_handler(const u_char *packet){
-    struct iphdr *ipHeader = (struct iphdr *)packet;
-    struct in_addr addr;
-    fprintf(stdout,"\t\tversion : %x\n",ipHeader->version);
-    addr.s_addr = ipHeader->saddr;
-    fprintf(stdout,"\t\tsource ip :%s\n",inet_ntoa(addr));
-    addr.s_addr = ipHeader->daddr;
-    fprintf(stdout,"\t\tdest ip :%s\n",inet_ntoa(addr));
-    fflush(stdout);
-}
-void ipv6_handler(const u_char * ip6_packet){
 
-
-}
-void ipv4_handler(const u_char * ip4_packet){
-
-
-}
-
-void ether_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_char*packet){
-    static int count = 1;
-    fprintf(stdout,"==============%d==================\n",count++);
-    fprintf(stdout,"[+] len : %u\n",pkthdr->len);
-    fprintf(stdout,"[+] capt_len : %u\n",pkthdr->caplen);
-    fprintf(stdout,"[+] capt_time : %ld\n",pkthdr->ts.tv_sec);
-    struct ether_header* etherHeader =( struct ether_header*)packet;
-    fflush(stdout);
-    fprintf(stdout,"\t[+] ethertype : %x\n",etherHeader->ether_type);
-    fprintf(stdout,"\t[+] source mac : %s\n",ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost));
-    fprintf(stdout,"\t[+] destination mac : %s\n",ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
-    int ether_header_size = sizeof( struct ether_header);
-   //SAVE
-
-    switch ((etherHeader->ether_type)){
-        default:
-            fprintf(stdout,"%s\n","????[-] no description is provided for this type");
-            break;
-        case ETHERTYPE_IPV6 :
-            ip_handler(&packet[ether_header_size]);
-            break;
-
-
-    }
-
-    fflush(stdout);
-}
 
 int main(int argc,char**argv) {
     char *device = "wlp2s0";
@@ -112,7 +60,7 @@ int main(int argc,char**argv) {
     }
 
     int count = 10;
-    pcap_loop(p_cature,count,ether_handler,NULL);
+    pcap_loop(p_cature,count,link_layer_handler,NULL);
 
     return 0;
 }
