@@ -12,9 +12,9 @@
 void internet_layer_handler(const u_char* packet,int version);
 static void  ipv6_handler(const u_char*);
 static void  ipv4_handler(const u_char*);
-static void  icmp_handler(const u_char*);
-static void  igmp_handler(const u_char*);
-static void  ospf_handler(const u_char*);
-static void  rib_handler (const u_char*);
+static void  icmp_handler(const u_char*);//TODO
+static void  igmp_handler(const u_char*);//TODO
+static void  ospf_handler(const u_char*);//TODO
+static void  rip_handler (const u_char*);//TODO
 
 #endif //NETWORK_ANA_INTERNET_LAYER_H

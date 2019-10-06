@@ -1,8 +1,10 @@
 
 #include <stdio.h>
+#include <getopt.h>
 #include "stdlib.h"
 
 #include "link_layer.h"
+#include "glob.h"
 
 /*
 void display_all_int(pcap_if_t * t){
@@ -39,7 +41,36 @@ void display_all_int(pcap_if_t * t){
 
 
 int main(int argc,char**argv) {
-    char *device = "wlp2s0";
+    char *device = 0;
+    char *file   = 0;
+    char *f = 0;
+    int opt;
+    while((opt = getopt(argc, argv, "i:f:v:o:")) != -1){
+        switch (opt){
+            case 'i':
+                device = optarg;
+                break;
+            case 'f':
+                f = optarg;
+                break;
+            case 'o':
+                file = optarg;
+                break;
+            case 'v':
+                verbose = strtol("BADSTRING",&optarg,10);
+                break;
+            default:
+                fprintf(stderr,"[-] Option %c %s has not been recognized\n",opt,optarg);
+                break;
+        }
+    }
+
+    fprintf(stdout,"FILE : %s\n",file);
+    fprintf(stdout,"VERBOSE : %ld\n",verbose);
+    fprintf(stdout,"DEVICE : %s\n",device);
+    fprintf(stdout,"FORMAT : %s\n",f);
+
+    exit(0);
     char error_buffer[PCAP_ERRBUF_SIZE];
     pcap_if_t* pcapIf;
 
