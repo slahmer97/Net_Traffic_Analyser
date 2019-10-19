@@ -7,6 +7,8 @@
 #include "linux/icmp.h"
 #include "linux/igmp.h"
 #include "linux/tcp.h"
+#include "transport_layer.h"
+
 void internet_layer_handler(const u_char* packet,int version){
     if(version == 4)
         ipv4_handler(packet);
@@ -34,13 +36,13 @@ static void ipv4_handler(const u_char * packet){
     inet_ntop(AF_INET,&(ipHeader->saddr),sip,INET_ADDRSTRLEN);
     inet_ntop(AF_INET,&(ipHeader->daddr),dip,INET_ADDRSTRLEN);
     fprintf(stdout,"%s[+] IPV4, src : (%s), dst : (%s)\n",ONESPACE,sip,dip);
-    fprintf(stdout,"%s[..] version   : %x\n",TWOSPACES,ipHeader->version);
-    fprintf(stdout,"%s[..] ihl       : %d\n",TWOSPACES,ipHeader->ihl);
-    fprintf(stdout,"%s[..] ttl       : %d\n",TWOSPACES,ipHeader->ttl);
-    fprintf(stdout,"%s[..] checksum  : %x\n",TWOSPACES,ipHeader->check);
-    fprintf(stdout,"%s[..] total len : %d\n",TWOSPACES,ipHeader->tot_len);
-    fprintf(stdout,"%s[..] id        : %d\n",TWOSPACES,ipHeader->id);
-    fprintf(stdout,"%s[..] frag off  : %d\n",TWOSPACES,ipHeader->frag_off);
+    fprintf(stdout,"%s[..] version   : %x\n",ONESPACE,ipHeader->version);
+    fprintf(stdout,"%s[..] ihl       : %d\n",ONESPACE,ipHeader->ihl);
+    fprintf(stdout,"%s[..] ttl       : %d\n",ONESPACE,ipHeader->ttl);
+    fprintf(stdout,"%s[..] checksum  : %x\n",ONESPACE,htons(ipHeader->check));
+    fprintf(stdout,"%s[..] total len : %d\n",ONESPACE,ipHeader->tot_len);
+    fprintf(stdout,"%s[..] id        : %d\n",ONESPACE,ipHeader->id);
+    fprintf(stdout,"%s[..] frag off  : %d\n",ONESPACE,ipHeader->frag_off);
     fflush(stdout);
 
     //add ihl case later
@@ -66,7 +68,7 @@ static void ipv4_handler(const u_char * packet){
 
             break;
         case 0x11: // UDP
-
+            udp_handler(data);
             break;
 
         case 0x59: // OSPF

@@ -3,7 +3,7 @@
 SOURCES = main.c internet_layer.c link_layer.c transport_layer.c application_layer.c
 HEADERS = glob.h internet_layer.h link_layer.h transport_layer.h bootp.h includes.h
 OBJS= $(SOURCES:.c=.o)
-GCH = $(SOURCES:.c=.gch)
+GCH = $(SOURCES:.c=.h.gch)
 
 LIBS = -lpcap
 CC = gcc
@@ -28,6 +28,4 @@ exec-wlp2s0-3 :
 	sudo ./a.out -i wlp2s0 -v 3
 
 clean :
-	rm $(OBJS)
-clean2 :
-	rm $(GCH)
+	rm $(OBJS) 2>/dev/null && rm $(GCH) 2>/dev/null

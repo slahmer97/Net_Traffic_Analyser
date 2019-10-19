@@ -26,11 +26,11 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     fprintf(stdout,"[+] capt_len : %u\n",pkthdr->caplen);
     fprintf(stdout,"[+] capt_time : %ld\n",pkthdr->ts.tv_sec);
     struct ether_header* etherHeader =( struct ether_header*)packet;
-    fflush(stdout);
     unsigned short type = htons(etherHeader->ether_type);
-    fprintf(stdout,"[+] %s (%x), Src : (%s), Dst : (%s) \n","Ethernet II",
-            type,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost),
-            ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
+
+    fprintf(stdout,"[+] %s (%x), Src : (%s), Dst : ","Ethernet II",
+            type,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost));
+    fprintf(stdout,"(%s) \n",ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
   //  fprintf(stdout,"%s[+] ethertype : %x\n",TWOSPACES,type);
   //  fprintf(stdout,"%s[+] source mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost));
    // fprintf(stdout,"%s[+] destination mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));

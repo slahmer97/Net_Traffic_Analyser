@@ -70,7 +70,6 @@ int main(int argc,char**argv) {
     fprintf(stdout,"DEVICE : %s\n",device);
     fprintf(stdout,"FORMAT : %s\n",f);
 
-    exit(0);
     char error_buffer[PCAP_ERRBUF_SIZE];
     pcap_if_t* pcapIf;
 
@@ -83,11 +82,22 @@ int main(int argc,char**argv) {
     }
     pcap_if_t* t = pcapIf;
     //display_all_int(t);
-    pcap_t * p_cature = pcap_open_live(device,BUFSIZ,0,-1,error_buffer);
-    if(p_cature == NULL){
-        fprintf(stderr,"[-] Error pcap_open_live :\n"
-                       "%s\n",error_buffer);
-        exit(1);
+    pcap_t * p_cature;
+    if(!file){
+        p_cature = pcap_open_live(device,BUFSIZ,0,-1,error_buffer);
+        if(p_cature == NULL){
+            fprintf(stderr,"[-] Error pcap_open_live :\n"
+                           "%s\n",error_buffer);
+            exit(1);
+        }
+    }
+    else{
+        p_cature = pcap_open_offline(file,error_buffer);
+        if(p_cature == NULL){
+            fprintf(stderr,"[-] Error pcap_open_live :\n"
+                           "%s\n",error_buffer);
+            exit(1);
+        }
     }
 
     int count = 10;
