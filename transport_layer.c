@@ -5,18 +5,49 @@
 
 #include <zconf.h>
 #include <linux/udp.h>
+#include <linux/tcp.h>
 #include <stdio.h>
 #include "includes.h"
 #include "transport_layer.h"
-#include "bootp.h"
+#include "bootph.h"
 
+void tcp_handler(const u_char*packet){
+    struct tcphdr* tcpHeader = (struct tcphdr*)packet;
+    ushort source = htons(tcpHeader->source);
+    ushort dest =  htons(tcpHeader->dest);
+    const u_char* data =(const u_char*) &packet[tcpHeader->doff*4];
+    fprintf(stdout,"%s[+] TCP, src : (%hu), dst : (%hu)\n",TWOSPACES,source,dest);
+    fprintf(stdout,"%s[..] seq       : 0x%x\n",TWOSPACES,htons(tcpHeader->seq));
+    fprintf(stdout,"%s[..] seq ack   : 0x%x\n",TWOSPACES,htons(tcpHeader->ack_seq));
+    fprintf(stdout,"%s[..] ack       : 0x%x\n",TWOSPACES,htons(tcpHeader->ack));
+    fprintf(stdout,"%s[..] check     : 0x%x\n",TWOSPACES,htons(tcpHeader->check));
+    fprintf(stdout,"%s[..] cwr       : 0x%x\n",TWOSPACES,htons(tcpHeader->cwr));
+    fprintf(stdout,"%s[..] doff      : 0x%x\n",TWOSPACES,htons(tcpHeader->doff));
+    fprintf(stdout,"%s[..] ece       : 0x%x\n",TWOSPACES,htons(tcpHeader->ece));
+    fprintf(stdout,"%s[..] fin       : 0x%x\n",TWOSPACES,htons(tcpHeader->fin));
+    fprintf(stdout,"%s[..] psh       : 0x%x\n",TWOSPACES,htons(tcpHeader->psh));
+    fprintf(stdout,"%s[..] res1      : 0x%x\n",TWOSPACES,htons(tcpHeader->res1));
+    fprintf(stdout,"%s[..] rst       : 0x%x\n",TWOSPACES,htons(tcpHeader->rst));
+    fprintf(stdout,"%s[..] syn       : 0x%x\n",TWOSPACES,htons(tcpHeader->syn));
+    fprintf(stdout,"%s[..] urg       : 0x%x\n",TWOSPACES,htons(tcpHeader->urg));
+    fprintf(stdout,"%s[..] urg_ptr   : 0x%x\n",TWOSPACES,htons(tcpHeader->urg_ptr));
+    fprintf(stdout,"%s[..] window    : 0x%x\n",TWOSPACES,htons(tcpHeader->window));
+
+    switch (source | dest){
+        case 80:
+
+    }
+
+
+
+}
 void udp_handler(const u_char* packet){
     struct udphdr* udpHeader = (struct udphdr*)packet;
     ushort sport = htons(udpHeader->source);
     ushort dport = htons(udpHeader->dest);
     fprintf(stdout,"%s[+] UDP, src : (%hu), dst : (%hu)\n",TWOSPACES,sport,dport);
-    fprintf(stdout,"%s[..] checksum  : %x\n",TWOSPACES,htons(udpHeader->check));
-    fprintf(stdout,"%s[..] len : %d\n",TWOSPACES,udpHeader->len);
+    fprintf(stdout,"%s[..] checksum  : 0x%x\n",TWOSPACES,htons(udpHeader->check));
+    fprintf(stdout,"%s[..] len : 0x%d\n",TWOSPACES,udpHeader->len);
 
     const u_char* data = &packet[sizeof(struct udphdr)];
 
@@ -26,10 +57,11 @@ void udp_handler(const u_char* packet){
 
 
 
+
 }
 
 void bootp_handler(const u_char* packet){
-    struct bootp_h* bootpHeader = (struct bootp_h*)packet;
+    struct bootp* bootpHeader = (struct bootp*)packet;
     u_char *vend = bootpHeader->bp_vend;
     uint dhcp_magic = htonl(*((unsigned int*)vend));
 

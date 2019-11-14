@@ -1,7 +1,7 @@
 # include makefile.mk
 
 SOURCES = main.c internet_layer.c link_layer.c transport_layer.c application_layer.c
-HEADERS = glob.h internet_layer.h link_layer.h transport_layer.h bootp.h includes.h
+HEADERS = internet_layer.h link_layer.h transport_layer.h bootph.h includes.h global.h
 OBJS= $(SOURCES:.c=.o)
 GCH = $(SOURCES:.c=.h.gch)
 
@@ -12,8 +12,8 @@ target : $(SOURCES) $(HEADERS)
 	$(CC) $(SOURCES) $(HEADERS) -lpcap
 
 
-main.o : main.c glob.h
-	$(CC) $(FLAGS) $(LIBS) main.c glob.h -o main.o
+main.o : main.c
+	$(CC) $(FLAGS) $(LIBS) main.c -o main.o
 
 exec-wlp2s0 :
 	sudo ./a.out -i wlp2s0

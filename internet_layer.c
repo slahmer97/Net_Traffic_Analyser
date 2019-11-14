@@ -62,7 +62,7 @@ static void ipv4_handler(const u_char * packet){
 
             break;
         case 0x06:// TCP
-
+            tcp_handler(data);
             break;
         case 0x08: //EGP
 

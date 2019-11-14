@@ -2,10 +2,10 @@
 #include <stdio.h>
 #include <getopt.h>
 #include "stdlib.h"
-
+#include "global.h"
 #include "link_layer.h"
-#include "glob.h"
 
+int verbose = -1;
 /*
 void display_all_int(pcap_if_t * t){
     char* tmp;
@@ -64,7 +64,7 @@ int main(int argc,char**argv) {
                 break;
         }
     }
-
+    file = "../packet/tcp_sack.cap";
     fprintf(stdout,"FILE : %s\n",file);
     fprintf(stdout,"VERBOSE : %ld\n",verbose);
     fprintf(stdout,"DEVICE : %s\n",device);
@@ -100,7 +100,7 @@ int main(int argc,char**argv) {
         }
     }
 
-    int count = 10;
+    int count = 40;
     pcap_loop(p_cature,count,link_layer_handler,NULL);
 
     return 0;
