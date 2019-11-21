@@ -20,6 +20,7 @@ char * ether_type_str[] = {
         [ETHERTYPE_REVARP] = "Reverse ARP"
 };
 void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_char*packet){
+    useless++;
     static int count = 1;
     fprintf(stdout,"<-----------------------------%d----------------------------->>>\n",count++);
     fprintf(stdout,"[+] len : %u\n",pkthdr->len);
@@ -58,16 +59,17 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
 
     fflush(stdout);
 }
-static void arp_handler(const u_char*packet){
+void arp_handler(const u_char*packet){
     struct arphdr* arp_header = (struct arphdr*)packet;
-    unsigned short hardware_type = arp_header->ar_hrd;
-    unsigned short protocol_type = arp_header->ar_pro;
+    //unsigned short hardware_type = arp_header->ar_hrd;
+    //unsigned short protocol_type = arp_header->ar_pro;
     unsigned char  arp_op_code   = htons(arp_header->ar_op);
-
+    //TODO
 
     fprintf(stdout,"%s[.] op      : %s\n",ONESPACE,arp_op_str[arp_op_code]);
 }
 void rarp_handler(const u_char*packet){
+    packet++;//TODO
     fprintf(stdout,"%s[.] reverse arp\n",ONESPACE);
 }
 

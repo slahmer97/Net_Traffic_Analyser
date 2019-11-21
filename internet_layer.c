@@ -16,7 +16,7 @@ void internet_layer_handler(const u_char* packet,int version){
         ipv6_handler(packet);
 }
 
-static void ipv6_handler(const u_char * packet){
+void ipv6_handler(const u_char * packet){
      struct ipv6hdr * ipv6Header = (struct ipv6hdr *)packet;
      char sip[INET6_ADDRSTRLEN];
      char dip[INET6_ADDRSTRLEN];
@@ -29,7 +29,7 @@ static void ipv6_handler(const u_char * packet){
 
 
 }
-static void ipv4_handler(const u_char * packet){
+void ipv4_handler(const u_char * packet){
     struct iphdr *ipHeader = (struct iphdr *)packet;
     char sip[INET_ADDRSTRLEN];
     char dip[INET_ADDRSTRLEN];
@@ -40,11 +40,11 @@ static void ipv4_handler(const u_char * packet){
     fprintf(stdout,"%s[..] ihl       : %d\n",ONESPACE,ipHeader->ihl);
     fprintf(stdout,"%s[..] ttl       : %d\n",ONESPACE,ipHeader->ttl);
     fprintf(stdout,"%s[..] checksum  : %x\n",ONESPACE,htons(ipHeader->check));
-    fprintf(stdout,"%s[..] total len : %d\n",ONESPACE,ipHeader->tot_len);
+    fprintf(stdout,"%s[..] total len : %d\n",ONESPACE,htons(ipHeader->tot_len));
     fprintf(stdout,"%s[..] id        : %d\n",ONESPACE,ipHeader->id);
     fprintf(stdout,"%s[..] frag off  : %d\n",ONESPACE,ipHeader->frag_off);
     fflush(stdout);
-
+    unsigned int data_len = htons(ipHeader->tot_len) - (ipHeader->ihl*4);
     //add ihl case later
     const u_char * data = &packet[sizeof(struct iphdr)];
 
@@ -62,7 +62,7 @@ static void ipv4_handler(const u_char * packet){
 
             break;
         case 0x06:// TCP
-            tcp_handler(data);
+            tcp_handler(data,data_len);
             break;
         case 0x08: //EGP
 
@@ -82,16 +82,27 @@ static void ipv4_handler(const u_char * packet){
 
 
 }
-
-static void icmp_handler(const u_char * packet){
+void icmp_handler(const u_char * packet){
     struct icmphdr* icmpHeader = (struct icmphdr*)packet;
+    icmpHeader->code = 1;
     fprintf(stdout,"%s[+] ICMP(4)   \n",THREESPACES);
 
 }
+/*
+
+
 static void  igmp_handler(const u_char*packet){
     struct igmphdr* igmpHeader = (struct igmphdr*)packet;
+    igmpHeader->code = 1;
     fprintf(stdout,"%s[+] IGMP(4)   \n",THREESPACES);
 
 }
-static void  ospf_handler(const u_char*packet){}
-static void  rib_handler (const u_char*packet){}
+static void  ospf_handler(const u_char*packet){
+    packet++;
+    fprintf(stdout,"%s[+] OSPF(4)   \n",THREESPACES);
+}
+static void  rib_handler (const u_char*packet){
+    packet++;
+    fprintf(stdout,"%s[+] RIB(4)   \n",THREESPACES);
+}
+ */

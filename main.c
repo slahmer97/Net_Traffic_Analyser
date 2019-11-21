@@ -66,7 +66,7 @@ int main(int argc,char**argv) {
     }
     file = "../packet/tcp_sack.cap";
     fprintf(stdout,"FILE : %s\n",file);
-    fprintf(stdout,"VERBOSE : %ld\n",verbose);
+    fprintf(stdout,"VERBOSE : %d\n",verbose);
     fprintf(stdout,"DEVICE : %s\n",device);
     fprintf(stdout,"FORMAT : %s\n",f);
 
@@ -80,7 +80,7 @@ int main(int argc,char**argv) {
                "%s\n",error_buffer);
         exit(1);
     }
-    pcap_if_t* t = pcapIf;
+    //pcap_if_t* t = pcapIf;
     //display_all_int(t);
     pcap_t * p_cature;
     if(!file){
@@ -100,7 +100,7 @@ int main(int argc,char**argv) {
         }
     }
 
-    int count = 40;
+    int count = 50;
     pcap_loop(p_cature,count,link_layer_handler,NULL);
 
     return 0;

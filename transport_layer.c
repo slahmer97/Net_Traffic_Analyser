@@ -10,8 +10,9 @@
 #include "includes.h"
 #include "transport_layer.h"
 #include "bootph.h"
+#include "application_layer.h"
 
-void tcp_handler(const u_char*packet){
+void tcp_handler(const u_char*packet,unsigned int len){
     struct tcphdr* tcpHeader = (struct tcphdr*)packet;
     ushort source = htons(tcpHeader->source);
     ushort dest =  htons(tcpHeader->dest);
@@ -32,11 +33,17 @@ void tcp_handler(const u_char*packet){
     fprintf(stdout,"%s[..] urg       : 0x%x\n",TWOSPACES,htons(tcpHeader->urg));
     fprintf(stdout,"%s[..] urg_ptr   : 0x%x\n",TWOSPACES,htons(tcpHeader->urg_ptr));
     fprintf(stdout,"%s[..] window    : 0x%x\n",TWOSPACES,htons(tcpHeader->window));
+    unsigned int data_len = len -((unsigned int) tcpHeader->doff*4) ;
+    fprintf(stdout,"%s[..] data len  : %d\n",TWOSPACES,data_len);
 
-    switch (source | dest){
-        case 80:
-
+    if(data_len <= 0){
+        fprintf(stdout,"%s[..]TCP SEGMENT HAS NO DATA\n",TWOSPACES);
+        return;
     }
+    if(source == 80 || dest == 80)
+            http_parser(data,data_len);
+    else
+    fprintf(stdout,"%s[-] Application isn't implemented yet\n",TWOSPACES);
 
 
 
