@@ -42,8 +42,10 @@ void tcp_handler(const u_char*packet,unsigned int len){
     }
     if(source == 80 || dest == 80)
             http_parser(data,data_len);
+    else if(source == 25 || dest == 25)
+            smtp_parser(data,data_len);
     else
-    fprintf(stdout,"%s[-] Application isn't implemented yet\n",TWOSPACES);
+        fprintf(stdout,"%s[-] Application isn't implemented yet\n",TWOSPACES);
 
 
 

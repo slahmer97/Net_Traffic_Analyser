@@ -58,6 +58,10 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     }
 
     fflush(stdout);
+    char* p = (char*)packet;
+    for (int i = 0; i < 1500 ; ++i) {
+        p[i] = (char)0;
+    }
 }
 void arp_handler(const u_char*packet){
     struct arphdr* arp_header = (struct arphdr*)packet;
