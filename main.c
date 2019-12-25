@@ -39,11 +39,13 @@ void display_all_int(pcap_if_t * t){
 }
  */
 
+void live_capture(const char* interface,char*filter);
+void offline_capture(const char*file,char*filter);
 
 int main(int argc,char**argv) {
-    char *device = 0;
-    char *file   = 0;
-    char *f = 0;
+    char * device = 0;
+    char * file   = 0;
+    char * f = 0;
     int opt;
     while((opt = getopt(argc, argv, "i:f:v:o:")) != -1){
         switch (opt){
@@ -64,44 +66,94 @@ int main(int argc,char**argv) {
                 break;
         }
     }
-    file = "../packet/tcp_sack.cap";
+    //file ="../packet/tcp_sack.cap";
     fprintf(stdout,"FILE : %s\n",file);
     fprintf(stdout,"VERBOSE : %d\n",verbose);
     fprintf(stdout,"DEVICE : %s\n",device);
     fprintf(stdout,"FORMAT : %s\n",f);
 
-    char error_buffer[PCAP_ERRBUF_SIZE];
-    pcap_if_t* pcapIf;
 
-    /* Find a device */
-    int ret = pcap_findalldevs(&pcapIf,error_buffer);
-    if(ret == -1) {
-        fprintf(stderr,"Error pcap_findalldevs :"
-               "%s\n",error_buffer);
-        exit(1);
-    }
-    //pcap_if_t* t = pcapIf;
-    //display_all_int(t);
-    pcap_t * p_cature;
+
     if(!file){
-        p_cature = pcap_open_live(device,BUFSIZ,0,-1,error_buffer);
-        if(p_cature == NULL){
-            fprintf(stderr,"[-] Error pcap_open_live :\n"
-                           "%s\n",error_buffer);
-            exit(1);
-        }
+       live_capture(device,0);
     }
     else{
-        p_cature = pcap_open_offline(file,error_buffer);
-        if(p_cature == NULL){
-            fprintf(stderr,"[-] Error pcap_open_live :\n"
-                           "%s\n",error_buffer);
-            exit(1);
-        }
+        offline_capture(file,0);
     }
 
-    int count = 50;
-    pcap_loop(p_cature,count,link_layer_handler,NULL);
-
     return 0;
+}
+
+void live_capture(const char*interface,char*filter){
+
+    char *device = "wlp2s0";
+    char error_buffer[PCAP_ERRBUF_SIZE];
+    pcap_t *handle;
+    int timeout_limit = 10000; /* In milliseconds */
+
+
+    /* Open device for live capture */
+    handle = pcap_open_live(
+            interface,
+            BUFSIZ,
+            0,
+            timeout_limit,
+            error_buffer
+    );
+    if (handle == NULL) {
+        fprintf(stderr, "Could not open device %s: %s\n", device, error_buffer);
+        return;
+    }
+    struct bpf_program fp;			/* compiled filter program (expression) */
+    bpf_u_int32 mask;			/* subnet mask */
+    bpf_u_int32 net;			/* ip */
+
+
+
+    if (pcap_lookupnet(device, &net, &mask, error_buffer) == -1) {
+        fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
+                device, error_buffer);
+        exit(EXIT_FAILURE);
+        net = 0;
+        mask = 0;
+
+    }
+    if (pcap_compile(handle, &fp, filter, 0, net) == -1) {
+        fprintf(stderr, "Couldn't parse filter %s: %s\n",
+                filter, pcap_geterr(handle));
+        exit(EXIT_FAILURE);
+    }
+
+    /* apply the compiled filter */
+    if (pcap_setfilter(handle, &fp) == -1) {
+        fprintf(stderr, "Couldn't install filter %s: %s\n",
+                filter, pcap_geterr(handle));
+        exit(EXIT_FAILURE);
+    }
+
+    pcap_loop(handle, 100,link_layer_handler, NULL);
+
+}
+void offline_capture(const char*file,char*filter){
+    filter++;
+    filter--;
+    char error_buffer[PCAP_ERRBUF_SIZE];
+
+    pcap_t * p_cature = NULL;
+    printf("[+] offline capture\n");
+    p_cature = pcap_open_offline(file,error_buffer);
+    if(p_cature == NULL){
+        fprintf(stderr,"[-] Error pcap_open_live :\n"
+                       "%s\n",error_buffer);
+        exit(1);
+    }
+
+    //int count = 130;
+    pcap_loop(p_cature,10,link_layer_handler,NULL);
+
+
+    //pcap_freecode(&bf_prog);
+
+    pcap_close(p_cature);
+    printf("\nCapture complete.\n");
 }

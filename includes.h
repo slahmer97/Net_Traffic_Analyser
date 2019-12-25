@@ -13,6 +13,9 @@
 #define ONESPACE "    "
 #define TWOSPACES "        "
 #define THREESPACES "            "
+
+#define ONESIZE 4
+#define TWOSIZE 8
 extern char *ether_ntoa (__const struct ether_addr *__addr) __THROW;
 
 

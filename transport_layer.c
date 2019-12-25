@@ -18,14 +18,14 @@ void tcp_handler(const u_char*packet,unsigned int len){
     ushort dest =  htons(tcpHeader->dest);
     const u_char* data =(const u_char*) &packet[tcpHeader->doff*4];
     fprintf(stdout,"%s[+] TCP, src : (%hu), dst : (%hu)\n",TWOSPACES,source,dest);
-    fprintf(stdout,"%s[..] seq       : 0x%x\n",TWOSPACES,htons(tcpHeader->seq));
-    fprintf(stdout,"%s[..] seq ack   : 0x%x\n",TWOSPACES,htons(tcpHeader->ack_seq));
-    fprintf(stdout,"%s[..] ack       : 0x%x\n",TWOSPACES,htons(tcpHeader->ack));
+    fprintf(stdout,"%s[..] seq       : 0x%x\n",TWOSPACES,htonl(tcpHeader->seq));
+    fprintf(stdout,"%s[..] seq ack   : 0x%x\n",TWOSPACES,htonl(tcpHeader->ack_seq));
     fprintf(stdout,"%s[..] check     : 0x%x\n",TWOSPACES,htons(tcpHeader->check));
     fprintf(stdout,"%s[..] cwr       : 0x%x\n",TWOSPACES,htons(tcpHeader->cwr));
     fprintf(stdout,"%s[..] doff      : 0x%x\n",TWOSPACES,htons(tcpHeader->doff));
     fprintf(stdout,"%s[..] ece       : 0x%x\n",TWOSPACES,htons(tcpHeader->ece));
     fprintf(stdout,"%s[..] fin       : 0x%x\n",TWOSPACES,htons(tcpHeader->fin));
+    fprintf(stdout,"%s[..] ack       : 0x%x\n",TWOSPACES,htons(tcpHeader->ack));
     fprintf(stdout,"%s[..] psh       : 0x%x\n",TWOSPACES,htons(tcpHeader->psh));
     fprintf(stdout,"%s[..] res1      : 0x%x\n",TWOSPACES,htons(tcpHeader->res1));
     fprintf(stdout,"%s[..] rst       : 0x%x\n",TWOSPACES,htons(tcpHeader->rst));
@@ -46,9 +46,6 @@ void tcp_handler(const u_char*packet,unsigned int len){
             smtp_parser(data,data_len);
     else
         fprintf(stdout,"%s[-] Application isn't implemented yet\n",TWOSPACES);
-
-
-
 }
 void udp_handler(const u_char* packet){
     struct udphdr* udpHeader = (struct udphdr*)packet;

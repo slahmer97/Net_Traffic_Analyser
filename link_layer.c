@@ -3,6 +3,7 @@
 //
 #include "link_layer.h"
 #include "internet_layer.h"
+#include "string.h"
 
 char * arp_op_str[] = {
         [ARPOP_REQUEST]   = "ARP request",
@@ -19,10 +20,12 @@ char * ether_type_str[] = {
         [ETHERTYPE_ARP]    = "ARP",
         [ETHERTYPE_REVARP] = "Reverse ARP"
 };
-void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_char*packet){
+void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_char*p){
     useless++;
     static int count = 1;
-    fprintf(stdout,"<-----------------------------%d----------------------------->>>\n",count++);
+    char packet[1500] = {0};
+    memcpy(packet,p,pkthdr->caplen);
+    fprintf(stdout,"<-----------------------------Packet : %d----------------------------->>>\n",count++);
     fprintf(stdout,"[+] len : %u\n",pkthdr->len);
     fprintf(stdout,"[+] capt_len : %u\n",pkthdr->caplen);
     fprintf(stdout,"[+] capt_time : %ld\n",pkthdr->ts.tv_sec);
@@ -38,7 +41,7 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
 
     int ether_header_size = sizeof( struct ether_header);
     //SAVE
-    const u_char* data = &packet[ether_header_size];
+    const u_char* data = (const u_char*)&packet[ether_header_size];
     switch ((type)){
         default:
             fprintf(stdout,"%s\n","????[-] no description is provided for this type");
@@ -58,10 +61,6 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     }
 
     fflush(stdout);
-    char* p = (char*)packet;
-    for (int i = 0; i < 1500 ; ++i) {
-        p[i] = (char)0;
-    }
 }
 void arp_handler(const u_char*packet){
     struct arphdr* arp_header = (struct arphdr*)packet;
