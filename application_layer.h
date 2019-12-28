@@ -11,8 +11,8 @@
 void http_parser(const u_char* data,unsigned int);
 void smtp_parser(const u_char* data,unsigned int);
 
-/*
-void dns_parser(const u_char*  data);
-*/
+
+void dns_parser(const u_char*  data, unsigned int);
+
 
 #endif //NETWORK_ANA_APPLICATION_LAYER_H

@@ -44,6 +44,8 @@ void tcp_handler(const u_char*packet,unsigned int len){
             http_parser(data,data_len);
     else if(source == 25 || dest == 25)
             smtp_parser(data,data_len);
+    else if(source == 53 || dest == 53)
+            dns_parser(data,data_len);
     else
         fprintf(stdout,"%s[-] Application isn't implemented yet\n",TWOSPACES);
 }
@@ -60,7 +62,8 @@ void udp_handler(const u_char* packet){
     if(sport == 68 || dport == 68 || sport == 67 || dport == 67){
         bootp_handler(data);
     }
-
+    if(sport == 53 || dport == 53)
+        dns_parser(data,0);
 
 
 

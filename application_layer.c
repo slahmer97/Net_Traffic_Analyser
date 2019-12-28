@@ -6,17 +6,21 @@
 #include "application_layer.h"
 #include "includes.h"
 #include <string.h>
-
+#include "dns.h"
+#include <ctype.h>
+#include <stdlib.h>
 static void print_box_hex(const char*padding,const char*input,int size){
+    //printf("size : %d\n",size);
     int i = 0;
     for (; i <size ;) {
         printf("%s",padding);
         int k = i;
         for (int j = 0; j < 16; ++j,i++) {
             char c = input[i];
-            if(c == '\n' || c=='\r' || c == '\t' || c == 0 || i >= size)
+            if(!isprint(c) || i >= size)
                 c = '.';
             printf("%c",c);
+            fflush(stdout);
         }
         i = k;
         printf("\t");
@@ -25,13 +29,15 @@ static void print_box_hex(const char*padding,const char*input,int size){
             if(i >= size)
               printf("00 ");
             else{
-                if(c < 15)
-                    printf("0%x ",c);
-                else
-                    printf("%x ",c);
+                //if(c < 15)
+                    printf("%02hhX ",c);
+               // else
+               //     printf("%x ",c);
             }
+            fflush(stdout);
         }
         printf("\n");
+        fflush(stdout);
     }
 
 
@@ -270,13 +276,71 @@ void smtp_parser(const u_char* data,unsigned int len ){
 
         rest -= k;
         token = strtok(NULL, "\r\n");
-
     }
 
 
 }
-/*
-void dns_parser(const u_char*  data){
-    fprintf(stdout,"%s[..] Data : %s\n",TWOSPACES,data);
+
+void dns_parser(const u_char*  data,unsigned int len){
+    int m_len = (int)len;
+    m_len -=0;
+    dnshdr* dnsHeader = (dnshdr*)data;
+    int transaction_id = htons(dnsHeader->id);
+    int is_query = (htons(!dnsHeader->qr));
+    int op_code = htons(dnsHeader->opcode);
+    int question_count = htons(dnsHeader->qcount);
+    int answer_count = htons(dnsHeader->ancount);
+    int ns_count = htons(dnsHeader->nscount);
+    int add_records_count = htons(dnsHeader->adcount);
+    fprintf(stdout,"%s[..] Transaction ID         : 0x%x\n",THREESPACES,transaction_id);
+    fprintf(stdout,"%s[..] Message is             : %s\n",THREESPACES,is_query?"Query":"Answer");
+    fprintf(stdout,"%s[..] Opcode                 : 0x%x\n",THREESPACES,op_code);
+    fprintf(stdout,"%s[..] Truncated              : Message is%s truncated\n",THREESPACES,(dnsHeader->tc >= 1)?"":" NOT");
+    fprintf(stdout,"%s[..] Recursion Desired      : Do%s query recursively\n",THREESPACES,(dnsHeader->rd >= 1)?"":" NOT");
+    fprintf(stdout,"%s[..] Reserved               : 0x%x\n",THREESPACES,(dnsHeader->zero ));
+    fprintf(stdout,"%s[..] Non-Autheritative Data : %sacceptable\n",THREESPACES,(dnsHeader->aa >= 1)?"":" Un");
+
+    fprintf(stdout,"%s[..] Questions Count        : 0x%x\n",THREESPACES,question_count);
+    fprintf(stdout,"%s[..] Answer Count           : 0x%x\n",THREESPACES,answer_count);
+    fprintf(stdout,"%s[..] NamedS Rec Count       : 0x%x\n",THREESPACES,ns_count);
+    fprintf(stdout,"%s[..] Additional Rec Count   : 0x%x\n",THREESPACES,add_records_count);
+
+    char * input = (char*)&data[sizeof(dnshdr)];
+
+    char * url = input;
+    while (question_count-- > 0){
+        int qlen = strlen(url)+1;
+        url = input;
+        struct question* quest = (struct question* )&url[qlen];
+        fprintf(stdout,"%s[..] Question Url   : ",THREESPACES);
+        print_url(url);
+        url +=sizeof(struct question)+qlen;
+        fprintf(stdout,"%s[..] Question Type  : 0x%x\n",THREESPACES,htons(quest->qtype));
+        fprintf(stdout,"%s[..] Question Class : 0x%x\n",THREESPACES,htons(quest->qclass));
+        question_count--;
+    }
+    if(answer_count == 0)
+        return;
+
+    //url++;
+    while (answer_count-- > 0){
+        int qlen = strlen(url);
+        struct answer* answer = (struct answer* )&url[qlen];
+        print_box_hex(THREESPACES,url,qlen);
+        url +=(sizeof(struct answer)+qlen-1);
+        uint16_t type = htons(answer->type);
+        uint16_t class = htons(answer->_class);
+        uint16_t data_len = htons(answer->data_len);
+        uint16_t  ttl = htonl(answer->ttl);
+        fprintf(stdout,"%s[..] Answer Type   : 0x%04x\n",THREESPACES,type);
+        fprintf(stdout,"%s[..] Answer class  : 0x%04x\n",THREESPACES,class);
+        fprintf(stdout,"%s[..] Answer len    : 0x%04x\n",THREESPACES,data_len);
+        fprintf(stdout,"%s[..] Answer ttl    : %d\n",THREESPACES,ttl);
+        //print_box_hex(THREESPACES,url,data_len);
+
+        url +=data_len-1;
+    }
+
+
+    //fprintf(stdout,"%sDNS :  %s\n",TWOSPACES,data);
 }
-*/
