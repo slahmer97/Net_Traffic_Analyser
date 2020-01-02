@@ -143,121 +143,117 @@ typedef struct {
 	because strlen reads until nullbyte and therefore doesnt include  qtype and qclass.
 */
 
-unsigned char* dns_format ( char *url, int *size, unsigned short int qtype, unsigned short int qclass )
-{
-    int i, c = 0, len = strlen(url);
-    char *buf = (char *) malloc(len+6);
 
-    buf[len+1] = 0;
-    for(i=len;i>=0;i--){
-        if(url[i] == '.') {
-            buf[i+1] = c;
-            c = 0;
-        }
-        else {
-            buf[i+1] = url[i];
-            c++;
-        }
+char* qclass_to_string(uint16_t type){
+    switch (type) {
+        case DNS_QCLASS_IN:
+            return "IN";
+        case DNS_QCLASS_ANY:
+            return "ANY";
+        case DNS_QCLASS_CH:
+            return "CH";
+        case DNS_QCLASS_RESERVED:
+            return "RESERVERD";
+        case DNS_QCLASS_HS:
+            return "HS";
+        case DNS_QCLASS_NONE:
+            return "NONE";
+        default:
+            return "INVALID";
     }
-    buf[0] = c;
 
-    uint16_t* qt = (uint16_t *) (buf + len + 2);
-    *qt = qtype;
-    uint16_t* qc = (uint16_t *) (buf + len + 4);
-    *qc = qclass;
-
-    if(size) *size = len+6;
-    return (unsigned char*)buf;
 }
 
-u_char* dns_to_url(unsigned char* reader,unsigned char* buffer,int* count)
-{
-    unsigned char *name;
-    unsigned int p=0,jumped=0,offset;
-    int i , j;
-
-    *count = 1;
-    name = (unsigned char*)malloc(256);
-
-    name[0]='\0';
-
-    //read the names in 3www6google3com format
-    while(*reader!=0)
-    {
-        if(*reader>=192)
-        {
-            offset = (*reader)*256 + *(reader+1) - 49152; //49152 = 11000000 00000000 ;)
-            reader = buffer + offset - 1;
-            jumped = 1; //we have jumped to another location so counting wont go up!
+char* qtype_to_string(uint16_t type){
+        switch (type){
+            case DNS_QTYPE_A:
+                return "A";
+            case DNS_QTYPE_CNAME:
+                return "CNAME";
+            case DNS_QTYPE_AAAA:
+                return "AAAA";
+            case DNS_QTYPE_DNAME:
+                return "DNAME";
+            case DNS_QTYPE_MX:
+                return "MX";
+            case DNS_QTYPE_NS:
+                return "NS";
+            case DNS_QTYPE_SOA:
+                return "SOA";
+            case DNS_QTYPE_PTR:
+                return "PTR";
+            default:
+                return "NOT SUPP YET";
         }
-        else
-        {
-            name[p++]=*reader;
-        }
-
-        reader = reader+1;
-
-        if(jumped==0)
-        {
-            *count = *count + 1; //if we havent jumped to another location then we can count up
-        }
-    }
-
-    name[p]='\0'; //string complete
-    if(jumped==1)
-    {
-        *count = *count + 1; //number of steps we actually moved forward in the packet
-    }
-
-    //now convert 3www6google3com0 to www.google.com
-    for(i=0;i<(int)strlen((const char*)name);i++)
-    {
-        p=name[i];
-        for(j=0;j<(int)p;j++)
-        {
-            name[i]=name[i+1];
-            i=i+1;
-        }
-        name[i]='.';
-    }
-    name[i-1]='\0'; //remove the last dot
-    return name;
 }
 
-char* print_url(char*url){
+
+char* print_url(char*name){
+
+    char *url = name;
+    uint16_t t;
+    t = htons(*((uint16_t* )url));
+    if(t == 0xc00){
+        printf("@\n");
+        return 0;
+    }
 
     while (*url){
-        if(isprint(*url))
-            printf("%c",*url);
+        t = htons(*((uint16_t* )url));
+        if(t == 0xc00c){
+            printf("@\n");
+            return 0;
+        }
+        char c = *url;
+        if(isprint(c))
+            printf("%c",c);
         else
             printf(".");
         url++;
+        fflush(stdout);
     }
     printf("\n");
-    return 0;
-    short t = *((short*)url);
-    //printf("%x",t);
-    if(t == 0xcc0){
-       printf("@\n");
-        return url+1; //c00c+00
 
+    return url+1;
+}
+
+
+char* print_url2(char*name){
+
+    char *url = name;
+    uint16_t t;
+    t = htons(*((uint16_t* )url));
+    if(t == 0xc000){
+        printf("@\n");
+        return 0;
     }
+
     while (*url){
-        int tmp = (int)*url;
+        int tmp = (char)*url;
         url++;
-        while (tmp--){
-            t = *((short*)url);
-            if(t ==  0xcc0){
+        while (tmp){
+            t = htons(*((uint16_t* )url));
+            if(t == 0xc00c){
                 printf("@\n");
-                return url+1; //c00c+00
+                return 0;
             }
-            printf("%c",*(url++));
+            char c = *url;
+            if(isprint(c))
+                printf("%c",c);
+            else
+                printf(".");
+            url++;
+            tmp--;
             fflush(stdout);
+            if(*url == 0)
+                break;
         }
         printf(".");
         fflush(stdout);
     }
     printf("\n");
+    url++;
+
     return url+1;
 }
 struct question{

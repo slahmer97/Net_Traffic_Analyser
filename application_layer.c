@@ -304,6 +304,7 @@ void dns_parser(const u_char*  data,unsigned int len){
     fprintf(stdout,"%s[..] Answer Count           : 0x%x\n",THREESPACES,answer_count);
     fprintf(stdout,"%s[..] NamedS Rec Count       : 0x%x\n",THREESPACES,ns_count);
     fprintf(stdout,"%s[..] Additional Rec Count   : 0x%x\n",THREESPACES,add_records_count);
+    fprintf(stdout,"%s[..]---------------------------------\n",THREESPACES);
 
     char * input = (char*)&data[sizeof(dnshdr)];
 
@@ -312,33 +313,34 @@ void dns_parser(const u_char*  data,unsigned int len){
         int qlen = strlen(url)+1;
         url = input;
         struct question* quest = (struct question* )&url[qlen];
-        fprintf(stdout,"%s[..] Question Url   : ",THREESPACES);
-        print_url(url);
+        fprintf(stdout,"%s[..] Question Hex    : ",THREESPACES);
+        print_box_hex("",url,qlen);
+        fprintf(stdout,"%s[..] Question Url    : ",THREESPACES);
+        print_url2(url);
         url +=sizeof(struct question)+qlen;
-        fprintf(stdout,"%s[..] Question Type  : 0x%x\n",THREESPACES,htons(quest->qtype));
-        fprintf(stdout,"%s[..] Question Class : 0x%x\n",THREESPACES,htons(quest->qclass));
+        fprintf(stdout,"%s[..] Question Type   : %s\t[0x%04x]\n",THREESPACES,qtype_to_string(htons(quest->qtype)),htons(quest->qtype));
+        fprintf(stdout,"%s[..] Question Class  : %s\t[0x%04x]\n",THREESPACES,qtype_to_string(htons(quest->qclass)),htons(quest->qclass));
         question_count--;
+        fprintf(stdout,"%s[..]---------------------------------\n",THREESPACES);
     }
-    if(answer_count == 0)
-        return;
-
-    //url++;
     while (answer_count-- > 0){
         int qlen = strlen(url);
         struct answer* answer = (struct answer* )&url[qlen];
+        fprintf(stdout,"%s[..] Answer Hex    : ",THREESPACES);
         print_box_hex(THREESPACES,url,qlen);
-        url +=(sizeof(struct answer)+qlen-1);
+        fprintf(stdout,"%s[..] Answer        : ",THREESPACES);
+        print_url(url);
+        url +=(sizeof(struct answer)+qlen);
         uint16_t type = htons(answer->type);
         uint16_t class = htons(answer->_class);
         uint16_t data_len = htons(answer->data_len);
         uint16_t  ttl = htonl(answer->ttl);
-        fprintf(stdout,"%s[..] Answer Type   : 0x%04x\n",THREESPACES,type);
-        fprintf(stdout,"%s[..] Answer class  : 0x%04x\n",THREESPACES,class);
+        fprintf(stdout,"%s[..] Answer Type   : %s\t[0x%04x]\n",THREESPACES,qtype_to_string(type),type);
+        fprintf(stdout,"%s[..] Answer class  : %s\t[0x%04x]\n",THREESPACES,qclass_to_string(class),class);
         fprintf(stdout,"%s[..] Answer len    : 0x%04x\n",THREESPACES,data_len);
         fprintf(stdout,"%s[..] Answer ttl    : %d\n",THREESPACES,ttl);
-        //print_box_hex(THREESPACES,url,data_len);
-
         url +=data_len-1;
+        fprintf(stdout,"%s[..]---------------------------------\n",THREESPACES);
     }
 
 
