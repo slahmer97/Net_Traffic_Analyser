@@ -55,7 +55,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 typedef struct {
-    uint16_t length;
     uint16_t id;
 
     uint16_t rd:1; //Recursion Desired
@@ -182,6 +181,8 @@ char* qtype_to_string(uint16_t type){
                 return "SOA";
             case DNS_QTYPE_PTR:
                 return "PTR";
+            case DNS_QTYPE_IXFR:
+                return "IXFR";
             default:
                 return "NOT SUPP YET";
         }
@@ -197,7 +198,6 @@ char* print_url(char*name){
         printf("@\n");
         return 0;
     }
-
     while (*url){
         t = htons(*((uint16_t* )url));
         if(t == 0xc00c){

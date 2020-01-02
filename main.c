@@ -149,7 +149,7 @@ void offline_capture(const char*file,char*filter){
     }
 
     //int count = 130;
-    pcap_loop(p_cature,6,link_layer_handler,NULL);
+    pcap_loop(p_cature,0,link_layer_handler,NULL);
 
 
     //pcap_freecode(&bf_prog);

@@ -44,8 +44,8 @@ void tcp_handler(const u_char*packet,unsigned int len){
             http_parser(data,data_len);
     else if(source == 25 || dest == 25)
             smtp_parser(data,data_len);
-    else if(source == 53 || dest == 53)
-            dns_parser(data,data_len);
+    //else if(source == 53 || dest == 53)
+        //dns_parser(data,data_len);
     else
         fprintf(stdout,"%s[-] Application isn't implemented yet\n",TWOSPACES);
 }
@@ -55,7 +55,7 @@ void udp_handler(const u_char* packet){
     ushort dport = htons(udpHeader->dest);
     fprintf(stdout,"%s[+] UDP, src : (%hu), dst : (%hu)\n",TWOSPACES,sport,dport);
     fprintf(stdout,"%s[..] checksum  : 0x%x\n",TWOSPACES,htons(udpHeader->check));
-    fprintf(stdout,"%s[..] len : 0x%d\n",TWOSPACES,udpHeader->len);
+    fprintf(stdout,"%s[..] len : 0x%d\n",TWOSPACES,htons(udpHeader->len));
 
     const u_char* data = &packet[sizeof(struct udphdr)];
 

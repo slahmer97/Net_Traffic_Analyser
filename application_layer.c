@@ -208,9 +208,47 @@ void http_parser(const u_char* data, unsigned int len){
         else if(strncmp(token,"WWW-Authenticate",16) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
+        else if(strncmp(token,"Via",3) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
         else if(strncmp(token,"Date",4) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
+        else if(strncmp(token,"Cookie",6) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"Set-Cookie",10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"Pragma",6) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"X-C",3) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"Cache-Control",13) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"Expires",7) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"xserver",7) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"Transfer-Encoding",17) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"x-flash-version",15) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"x-amz-id-2",10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"x-amz-request-id",16) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+
+
         else
             goto data_found;
         rest -= k;
@@ -282,8 +320,9 @@ void smtp_parser(const u_char* data,unsigned int len ){
 }
 
 void dns_parser(const u_char*  data,unsigned int len){
-    int m_len = (int)len;
-    m_len -=0;
+    len++;
+   // print_box_hex("-->   ",(const char*)data,16);
+    //return;
     dnshdr* dnsHeader = (dnshdr*)data;
     int transaction_id = htons(dnsHeader->id);
     int is_query = (htons(!dnsHeader->qr));
@@ -309,38 +348,43 @@ void dns_parser(const u_char*  data,unsigned int len){
     char * input = (char*)&data[sizeof(dnshdr)];
 
     char * url = input;
-    while (question_count-- > 0){
+    while (question_count-->0){
         int qlen = strlen(url)+1;
         url = input;
         struct question* quest = (struct question* )&url[qlen];
-        fprintf(stdout,"%s[..] Question Hex    : ",THREESPACES);
-        print_box_hex("",url,qlen);
+        fprintf(stdout,"%s[..] Question Hex  -> \n",THREESPACES);
+        print_box_hex(EXTRASPACES,(const char*)quest,16);
         fprintf(stdout,"%s[..] Question Url    : ",THREESPACES);
         print_url2(url);
-        url +=sizeof(struct question)+qlen;
+        url =(char*)(sizeof(struct question)+(char*)quest);
         fprintf(stdout,"%s[..] Question Type   : %s\t[0x%04x]\n",THREESPACES,qtype_to_string(htons(quest->qtype)),htons(quest->qtype));
-        fprintf(stdout,"%s[..] Question Class  : %s\t[0x%04x]\n",THREESPACES,qtype_to_string(htons(quest->qclass)),htons(quest->qclass));
+        fprintf(stdout,"%s[..] Question Class  : %s\t[0x%04x]\n",THREESPACES,qclass_to_string(htons(quest->qclass)),htons(quest->qclass));
         question_count--;
         fprintf(stdout,"%s[..]---------------------------------\n",THREESPACES);
     }
+    //url++;
     while (answer_count-- > 0){
         int qlen = strlen(url);
         struct answer* answer = (struct answer* )&url[qlen];
-        fprintf(stdout,"%s[..] Answer Hex    : ",THREESPACES);
-        print_box_hex(THREESPACES,url,qlen);
-        fprintf(stdout,"%s[..] Answer        : ",THREESPACES);
-        print_url(url);
-        url +=(sizeof(struct answer)+qlen);
+        //print_box_hex(THREESPACES,(char*)answer,16);
+
+        //fprintf(stdout,"\n%s[..] Answer        : ",THREESPACES);
+        //print_url(url);
         uint16_t type = htons(answer->type);
         uint16_t class = htons(answer->_class);
         uint16_t data_len = htons(answer->data_len);
         uint16_t  ttl = htonl(answer->ttl);
+        //print_box_hex("--> ",url,16);
         fprintf(stdout,"%s[..] Answer Type   : %s\t[0x%04x]\n",THREESPACES,qtype_to_string(type),type);
         fprintf(stdout,"%s[..] Answer class  : %s\t[0x%04x]\n",THREESPACES,qclass_to_string(class),class);
-        fprintf(stdout,"%s[..] Answer len    : 0x%04x\n",THREESPACES,data_len);
+        fprintf(stdout,"%s[..] Answer len    : %d\n",THREESPACES,data_len);
         fprintf(stdout,"%s[..] Answer ttl    : %d\n",THREESPACES,ttl);
-        url +=data_len-1;
-        fprintf(stdout,"%s[..]---------------------------------\n",THREESPACES);
+        fprintf(stdout,"%s[..] Answer Hex    : \n",THREESPACES);
+        print_box_hex(EXTRASPACES,(char*)answer+sizeof(struct answer)-2,data_len);
+        fprintf(stdout,"%s[--]---------------------------------\n",THREESPACES);
+
+        url =(char*)answer+sizeof(struct answer)+data_len;
+
     }
 
 
