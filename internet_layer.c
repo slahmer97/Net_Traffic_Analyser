@@ -8,7 +8,7 @@
 #include "linux/igmp.h"
 #include "linux/tcp.h"
 #include "transport_layer.h"
-
+int verbose;
 void internet_layer_handler(const u_char* packet,int version){
     if(version == 4)
         ipv4_handler(packet);
@@ -36,13 +36,15 @@ void ipv4_handler(const u_char * packet){
     inet_ntop(AF_INET,&(ipHeader->saddr),sip,INET_ADDRSTRLEN);
     inet_ntop(AF_INET,&(ipHeader->daddr),dip,INET_ADDRSTRLEN);
     fprintf(stdout,"%s[+] IPV4, src : (%s), dst : (%s)\n",ONESPACE,sip,dip);
-    fprintf(stdout,"%s[..] version   : %x\n",ONESPACE,ipHeader->version);
-    fprintf(stdout,"%s[..] ihl       : %d\n",ONESPACE,ipHeader->ihl);
-    fprintf(stdout,"%s[..] ttl       : %d\n",ONESPACE,ipHeader->ttl);
-    fprintf(stdout,"%s[..] checksum  : %x\n",ONESPACE,htons(ipHeader->check));
-    fprintf(stdout,"%s[..] total len : %d\n",ONESPACE,htons(ipHeader->tot_len));
-    fprintf(stdout,"%s[..] id        : %d\n",ONESPACE,ipHeader->id);
-    fprintf(stdout,"%s[..] frag off  : %d\n",ONESPACE,ipHeader->frag_off);
+    if(verbose == 3) {
+        fprintf(stdout,"%s[..] version   : %x\n",ONESPACE,ipHeader->version);
+        fprintf(stdout,"%s[..] ihl       : %d\n",ONESPACE,ipHeader->ihl);
+        fprintf(stdout,"%s[..] ttl       : %d\n",ONESPACE,ipHeader->ttl);
+        fprintf(stdout,"%s[..] checksum  : %x\n",ONESPACE,htons(ipHeader->check));
+        fprintf(stdout,"%s[..] total len : %d\n",ONESPACE,htons(ipHeader->tot_len));
+        fprintf(stdout,"%s[..] id        : %d\n",ONESPACE,ipHeader->id);
+        fprintf(stdout,"%s[..] frag off  : %d\n",ONESPACE,ipHeader->frag_off);
+    }
     fflush(stdout);
     unsigned int data_len = htons(ipHeader->tot_len) - (ipHeader->ihl*4);
     //add ihl case later
@@ -53,7 +55,11 @@ void ipv4_handler(const u_char * packet){
             fprintf(stderr,"%s[-] Protocol not recognized yet %x\n",TWOSPACES,ipHeader->protocol);
             break;
         case 0x01: // ICMP
-            icmp_handler(data);
+            if(verbose == 3 || verbose == 2){
+                fprintf(stdout,"%s[+] ICMP(4)   \n",THREESPACES);
+                if(verbose == 3)
+                    icmp_handler(data);
+            }
             break;
         case 0x02: //IGMP
 
@@ -62,13 +68,16 @@ void ipv4_handler(const u_char * packet){
 
             break;
         case 0x06:// TCP
-            tcp_handler(data,data_len);
+            if(verbose >= 2){
+                tcp_handler(data,data_len);
+            }
             break;
         case 0x08: //EGP
 
             break;
         case 0x11: // UDP
-            udp_handler(data);
+            if(verbose >= 2)
+                udp_handler(data);
             break;
 
         case 0x59: // OSPF
@@ -85,8 +94,6 @@ void ipv4_handler(const u_char * packet){
 void icmp_handler(const u_char * packet){
     struct icmphdr* icmpHeader = (struct icmphdr*)packet;
     icmpHeader->code = 1;
-    fprintf(stdout,"%s[+] ICMP(4)   \n",THREESPACES);
-
 }
 /*
 

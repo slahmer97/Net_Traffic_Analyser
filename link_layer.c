@@ -4,7 +4,7 @@
 #include "link_layer.h"
 #include "internet_layer.h"
 #include "string.h"
-
+int verbose;
 char * arp_op_str[] = {
         [ARPOP_REQUEST]   = "ARP request",
         [ARPOP_REPLY]     = "ARP reply",
@@ -26,9 +26,11 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     char packet[1500] = {0};
     memcpy(packet,p,pkthdr->caplen);
     fprintf(stdout,"<-----------------------------Packet : %d----------------------------->>>\n",count++);
-    fprintf(stdout,"[+] len : %u\n",pkthdr->len);
-    fprintf(stdout,"[+] capt_len : %u\n",pkthdr->caplen);
-    fprintf(stdout,"[+] capt_time : %ld\n",pkthdr->ts.tv_sec);
+    if(verbose == 3){
+        fprintf(stdout,"[+] len : %u\n",pkthdr->len);
+        fprintf(stdout,"[+] capt_len : %u\n",pkthdr->caplen);
+        fprintf(stdout,"[+] capt_time : %ld\n",pkthdr->ts.tv_sec);
+    }
     struct ether_header* etherHeader =( struct ether_header*)packet;
     unsigned short type = htons(etherHeader->ether_type);
 

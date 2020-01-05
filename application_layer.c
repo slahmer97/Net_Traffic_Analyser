@@ -10,7 +10,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 static void print_box_hex(const char*padding,const char*input,int size){
-    //printf("size : %d\n",size);
     int i = 0;
     for (; i <size ;) {
         printf("%s",padding);
@@ -39,8 +38,6 @@ static void print_box_hex(const char*padding,const char*input,int size){
         printf("\n");
         fflush(stdout);
     }
-
-
 }
 /*
 static void printf_ray_hex(const u_char *padding,const u_char* txt,int len){
@@ -101,6 +98,9 @@ void http_parser(const u_char* data, unsigned int len){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
         else if(strncmp(token,"Content-Type",12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"Cache-control",13) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
         else if(strncmp(token,"Last-Modified",13) == 0){
@@ -182,6 +182,9 @@ void http_parser(const u_char* data, unsigned int len){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
         else if(strncmp(token,"Accept-Ranges",13) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"Content-Encoding",16) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
         else if(strncmp(token,"Age",3) == 0){
@@ -271,14 +274,23 @@ void http_parser(const u_char* data, unsigned int len){
     }
      */
 }
-
 void smtp_parser(const u_char* data,unsigned int len ){
     char *string =(char*) data;
     char * token = strtok(string, "\r\n");
     int rest = (int)len;
     while( token != NULL && rest > 0) {
         int k = 0;
-        if(strncmp(token, "HELO", 4) == 0){
+        //printf("===> : %c %c %c\n",token[0],token[1],token[2]);
+        if( '1'<=token[0] && token[0]<= '5' && '0'<=token[1] && token[1]<= '9' && '0'<=token[2] && token[2]<= '9'){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "HELO", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "AUTH", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Username", 8) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
         else if(strncmp(token, "MAIL FROM:", 10) == 0){
@@ -303,22 +315,78 @@ void smtp_parser(const u_char* data,unsigned int len ){
         }
         else if(strncmp(token-5, "\r\n.\r\n", 5) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
-
         }
         else if(strncmp(token, "QUIT", 4) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
-        else {
+        else if(strncmp(token, "From", 4) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
+        else if(strncmp(token, "To", 2) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Subject", 7) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Date", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Message-ID", 10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "MIME-Version", 12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Content-Type", 12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "\tboundary", 9) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "X-Mailer", 8) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Subject", 7) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Thread-Index",12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Content-Language", 16) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "x-cr-hashedpuzzle", 17) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "x-cr-puzzleid", 13) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Subject", 7) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "\tcharset", 8) == 0) {
+            k = printf("%s%s\n", TWOSPACES, token) - (TWOSIZE + 1);
+        }
+        else if(strncmp(token, "Content-Transfer-Encoding",25) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+
+        else
+            goto data_found;
 
         rest -= k;
         token = strtok(NULL, "\r\n");
     }
+    return;
+    data_found:
+        rest -=2;
+        char* input;
+        input = token;
+        printf("DATA:\n");
+        print_box_hex(TWOSPACES,input,rest);
 
 
 }
-
 void dns_parser(const u_char*  data,unsigned int len){
     len++;
    // print_box_hex("-->   ",(const char*)data,16);
@@ -389,4 +457,449 @@ void dns_parser(const u_char*  data,unsigned int len){
 
 
     //fprintf(stdout,"%sDNS :  %s\n",TWOSPACES,data);
+}
+void pop_parser(const u_char* data, unsigned int len){
+    char *string =(char*) data;
+    char * token = strtok(string, "\r\n");
+    int rest =(int)len;
+    while( token != NULL ) {
+        int k;
+        if(strncmp(token,"+OK",3) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"-ERR",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"QUIT",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"DELE",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"NOOP",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"CAPA",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"TOP",3) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"USER",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"PASS",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"APOP",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"UIDL",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"CAPA",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"STLS",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"SASL",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"PLAIN",5) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token,"IMPLEMENTATION",14) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, ".\r\n", 3) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            return;
+        }
+        else if(strncmp(token-5, "\r\n.\r\n", 5) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, ".",1) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "AUTH",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "STAT",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "LIST",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "RETR",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Return-Path",11) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Delivery-Date",13) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Received",8) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "DKIM-Signature",14) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "MIME-Version",12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "To",2) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "From",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Subject",7) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Content-Type",12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "X-Message-Id",12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Message-Id",10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Message-Id",10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Date",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "X-Provags-Id",12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "xt/plain",8) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Content-Transfer-Encoding",25) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "E-Version",9) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "X-OriginatorOrg",15) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "X-FOPE-CONNECTOR",16) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Envelope-To",11) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "Delivered-To",10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else
+            goto data_found;
+        rest -= k;
+        rest -=2;
+        token = strtok(NULL, "\r\n");
+    }
+    return ;
+    data_found:
+    rest -=2;
+    char* input;
+    input = token;
+    printf("DATA:\n");
+    print_box_hex(TWOSPACES,input,rest);
+}
+void imap_parser(const u_char*data,unsigned int len){
+    char *string =(char*) data;
+    char * token = strtok(string, "\r\n");
+    int rest =(int)len;
+    static int i=0;
+    i++;
+    while( token != NULL ) {
+        int k;
+        if(i == 9)
+            printf(" ");
+        if(strncmp(token,"Date",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        else if(strncmp(token,"From",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        else if(strncmp(token,"Subject",7) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        else if(strncmp(token,"To",2) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        else if(strncmp(token,"Message-ID",10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        else if(strncmp(token,"Content-Type",12) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        else if(strncmp(token,"Reply-To",8) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        else if(strncmp(token,"\t",1) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+            goto last;
+        }
+        char* tmp = token;
+        while (*(tmp++) != ' ');
+        //tmp++;
+        if(*tmp <= '9' && *(tmp)>=0){
+            tmp++;
+            while (*(tmp) <= '9' && *(tmp++) >= '0');
+        }
+        if(strncmp(tmp,"OK",2) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"CAPABILITY",10) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"LOGIN",5) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"LIST",4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"SELECT",6) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"LOGIN",5) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"EXISTS",6) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"RECENT",6) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"FLAGS",5) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(tmp,"FETCH",5) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+
+
+        else
+            goto data_found;
+
+        last:
+        rest -= k;
+        rest -=2;
+        token = strtok(NULL, "\r\n");
+    }
+    return ;
+    data_found:
+    rest -=2;
+    char* input;
+    input = token;
+    printf("DATA:\n");
+    print_box_hex(TWOSPACES,input,rest);
+}
+void ftp_parser(const u_char*data,unsigned int len) {
+    char *string =(char*) data;
+    char * token = strtok(string, "\r\n");
+    int rest = (int)len;
+    while( token != NULL && rest > 0) {
+        int k = 0;
+        //printf("===> : %c %c %c\n",token[0],token[1],token[2]);
+        if( '1'<=token[0] && token[0]<= '5' && '0'<=token[1] && token[1]<= '9' && '0'<=token[2] && token[2]<= '9'){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "USER", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "PASS", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "SYST", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "FEAT", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "CLNT", 4) == 0 || strncmp(token+1, "CLNT", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "MDTM", 4) == 0 || strncmp(token+1, "MDTM", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "PASV", 4) == 0 || strncmp(token+1, "PASV", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "REST", 4) == 0|| strncmp(token+1, "REST", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "SIZE", 4) == 0 || strncmp(token+1, "SIZE", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "FEAT", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "PWD", 3) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "CWD", 3) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "TYPE", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else
+            goto data_found;
+
+        rest -= k;
+        token = strtok(NULL, "\r\n");
+    }
+    return;
+    data_found:
+    rest -=2;
+    char* input;
+    input = token;
+    printf("DATA:\n");
+    print_box_hex(TWOSPACES,input,rest);
+}
+
+void telnet_parser(const u_char*data,unsigned int len) {
+
+    if (data[0] != IAC) {
+        print_box_hex(THREESPACES, (const char *) data, (int) len);
+        return;
+    }
+    int i;
+    for (i = 0; i <(int)len; ++i) {
+        unsigned char c = data[i];
+        if(c == IAC){
+            printf( "%s[+] ",TWOSPACES);
+            i++;
+            unsigned char next_c = data[i];
+            switch (next_c){
+                case WILL:
+                    fprintf(stdout,"WILL ");
+                    goto one_arg;
+                case WILL_NOT:
+                    fprintf(stdout,"WON'T ");
+                    goto one_arg;
+                case DO:
+                    fprintf(stdout,"DO ");
+                    goto one_arg;
+                case DO_NOT:
+                    fprintf(stdout,"DON'T ");
+                    goto one_arg;
+                case SB:
+                    fprintf(stdout,"SUBOPT ");
+                    goto two_args;
+                case SE:
+                    fprintf(stdout,"SUBOPTEND");
+                    break;
+                case GO_AHEAD:
+                    fprintf(stdout,"GO AHEAD ");
+                    goto one_arg;
+                case ERASE_LINE:
+                    fprintf(stdout,"ERASE LINE ");
+                    goto one_arg;
+                case ERASE_CHARACTER:
+                    fprintf(stdout,"ERASE CHARACTER");
+                    goto one_arg;
+                case ARE_YOU_THERE:
+                    fprintf(stdout,"ARE YOU THERE ");
+                    goto one_arg;
+                case ABORT_OUTPUT:
+                    fprintf(stdout,"ABORT OUTPUT ");
+                    goto one_arg;
+                case INTERRUPT_PROCESS:
+                    fprintf(stdout,"INTERRUPT PROCESS");
+                    goto one_arg;
+                case BREAK:
+                    fprintf(stdout,"BREAK ");
+                    break;
+                case DATA_MARK:
+                    fprintf(stdout,"DATA MARK ");
+                    goto one_arg;
+                case NOP:
+                    fprintf(stdout,"NO OPERATION ");
+                    break;
+                default:
+                    fprintf(stdout,"COMMAND IS NOT RECOGNIZED");
+
+            }
+
+        }
+
+        end_loop:
+        printf("\n");
+    }
+
+    return;
+
+    one_arg:
+    i++;
+    unsigned char tmp = data[i];
+    switch (tmp){
+        case ECHO:
+            fprintf(stdout,"ECHO ");
+            break;
+        case GO_AHEAD:
+            fprintf(stdout,"GO AHEAD ");
+            break;
+        case TERMINAL_TYPE:
+            fprintf(stdout,"TERMINAL TYPE ");
+            break;
+        case WINDOW_SIZE:
+            fprintf(stdout,"WINDOW SIZE ");
+            break;
+        case TERMINAL_SPEED:
+            fprintf(stdout,"TERMINAL SPEED ");
+            break;
+        case REMOTE_FLOW_CONTROL:
+            fprintf(stdout,"REMOTE FLOW CONTROL ");
+            break;
+        case LINE_MODE:
+            fprintf(stdout,"LINE MODE ");
+            break;
+        case X_ENVIRONMENT_OPTION:
+            fprintf(stdout,"NEW ENVIREMENT OPTION ");
+            break;
+        case STATUS:
+            fprintf(stdout,"STATUS ");
+            break;
+        case X_DISPLAY_LOCATION:
+            fprintf(stdout,"X-DISPLAY LOCATION ");
+            break;
+
+        case SUPPRESS_GO_AHEAD:
+            fprintf(stdout,"SUPPRESS GO AHEAD ");
+            break;
+        case ENVIRONMENT_VARIABLES:
+            fprintf(stdout,"ENVIREMENT VARIABLE ");
+            break;
+        case ENCRYPTION_OPTION:
+            fprintf(stdout,"ENCRYPTION OPTION ");
+            break;
+        case AUTHENTICATION_OPTION:
+            fprintf(stdout,"AUTHENTIFICATION OPTION ");
+            break;
+        case TIMING_MARK:
+            fprintf(stdout,"TIMING MARKER");
+            break;
+    }
+    goto end_loop;
+
+    two_args:
+        i++;
+        i++;
+        goto end_loop;
+
 }

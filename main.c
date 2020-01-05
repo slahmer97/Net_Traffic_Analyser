@@ -5,7 +5,6 @@
 #include "global.h"
 #include "link_layer.h"
 
-int verbose = -1;
 /*
 void display_all_int(pcap_if_t * t){
     char* tmp;
@@ -41,8 +40,9 @@ void display_all_int(pcap_if_t * t){
 
 void live_capture(const char* interface,char*filter);
 void offline_capture(const char*file,char*filter);
-
+int verbose;
 int main(int argc,char**argv) {
+    verbose=-1;
     char * device = 0;
     char * file   = 0;
     char * f = 0;
@@ -59,13 +59,19 @@ int main(int argc,char**argv) {
                 file = optarg;
                 break;
             case 'v':
-                verbose = strtol("BADSTRING",&optarg,10);
+                verbose =atoi(optarg);// strtol("BADSTRING",&optarg,10);
+                if(verbose > 3)
+                    verbose = 3;
+                if(verbose< 1)
+                    verbose = 1;
                 break;
             default:
                 fprintf(stderr,"[-] Option %c %s has not been recognized\n",opt,optarg);
                 break;
         }
     }
+    if(verbose < 1 || verbose >3)
+        verbose = 1;
     //file ="../packet/tcp_sack.cap";
     fprintf(stdout,"FILE : %s\n",file);
     fprintf(stdout,"VERBOSE : %d\n",verbose);
@@ -75,10 +81,10 @@ int main(int argc,char**argv) {
 
 
     if(!file){
-       live_capture(device,0);
+       live_capture(device,f);
     }
     else{
-        offline_capture(file,0);
+        offline_capture(file,f);
     }
 
     return 0;
@@ -86,13 +92,13 @@ int main(int argc,char**argv) {
 
 void live_capture(const char*interface,char*filter){
 
-    char *device = "wlp2s0";
     char error_buffer[PCAP_ERRBUF_SIZE];
     pcap_t *handle;
-    int timeout_limit = 10000; /* In milliseconds */
+    struct bpf_program fp;
+    bpf_u_int32 mask;
+    bpf_u_int32 net;
+    int timeout_limit = 10000;
 
-
-    /* Open device for live capture */
     handle = pcap_open_live(
             interface,
             BUFSIZ,
@@ -101,22 +107,17 @@ void live_capture(const char*interface,char*filter){
             error_buffer
     );
     if (handle == NULL) {
-        fprintf(stderr, "Could not open device %s: %s\n", device, error_buffer);
+        fprintf(stderr, "Could not open device %s: %s\n", interface, error_buffer);
         return;
     }
-    struct bpf_program fp;			/* compiled filter program (expression) */
-    bpf_u_int32 mask;			/* subnet mask */
-    bpf_u_int32 net;			/* ip */
 
 
 
-    if (pcap_lookupnet(device, &net, &mask, error_buffer) == -1) {
+
+    if (pcap_lookupnet(interface, &net, &mask, error_buffer) == -1) {
         fprintf(stderr, "Couldn't get netmask for device %s: %s\n",
-                device, error_buffer);
+                interface, error_buffer);
         exit(EXIT_FAILURE);
-        net = 0;
-        mask = 0;
-
     }
     if (pcap_compile(handle, &fp, filter, 0, net) == -1) {
         fprintf(stderr, "Couldn't parse filter %s: %s\n",
@@ -130,17 +131,19 @@ void live_capture(const char*interface,char*filter){
                 filter, pcap_geterr(handle));
         exit(EXIT_FAILURE);
     }
-
-    pcap_loop(handle, 100,link_layer_handler, NULL);
+    pcap_loop(handle, 0,link_layer_handler, NULL);
 
 }
 void offline_capture(const char*file,char*filter){
     filter++;
     filter--;
     char error_buffer[PCAP_ERRBUF_SIZE];
-
     pcap_t * p_cature = NULL;
     printf("[+] offline capture\n");
+
+    struct bpf_program fp;
+
+
     p_cature = pcap_open_offline(file,error_buffer);
     if(p_cature == NULL){
         fprintf(stderr,"[-] Error pcap_open_live :\n"
@@ -148,12 +151,18 @@ void offline_capture(const char*file,char*filter){
         exit(1);
     }
 
-    //int count = 130;
+    if (pcap_compile(p_cature, &fp, filter, 0, 0) == -1) {
+        fprintf(stderr, "Couldn't parse filter %s: %s\n",
+                filter, pcap_geterr(p_cature));
+        exit(EXIT_FAILURE);
+    }
+    /* apply the compiled filter */
+    if (pcap_setfilter(p_cature, &fp) == -1) {
+        fprintf(stderr, "Couldn't install filter %s: %s\n",
+                filter, pcap_geterr(p_cature));
+        exit(EXIT_FAILURE);
+    }
     pcap_loop(p_cature,0,link_layer_handler,NULL);
-
-
-    //pcap_freecode(&bf_prog);
-
     pcap_close(p_cature);
     printf("\nCapture complete.\n");
 }
