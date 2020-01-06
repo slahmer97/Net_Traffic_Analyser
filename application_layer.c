@@ -918,7 +918,6 @@ void telnet_parser(const u_char*data,unsigned int len) {
         case X_DISPLAY_LOCATION:
             fprintf(stdout,"X-DISPLAY LOCATION ");
             break;
-
         case SUPPRESS_GO_AHEAD:
             fprintf(stdout,"SUPPRESS GO AHEAD ");
             break;
@@ -938,8 +937,39 @@ void telnet_parser(const u_char*data,unsigned int len) {
     goto end_loop;
 
     two_args:
-        i++;
-        i++;
+    i++;
+    unsigned char k = data[i];
+        switch (k){
+            case LINE_MODE:
+                fprintf(stdout,"LINE MODE\n%s  Option data : ",TWOSPACES);
+                i++;
+                while (data[i] != 0xff){
+                    fprintf(stdout,"%02x",data[i]);
+                    i++;
+                }
+                break;
+            case WINDOW_SIZE:
+                fprintf(stdout,"Negociate window Size\n%s  width : %d\theight : %d ",TWOSPACES,htons(*(short *)&data[i+1]),htons(*(short *)&data[i+3]));
+                i +=5;
+                break;
+            case TERMINAL_SPEED:
+                fprintf(stdout,"Terminal Speed\n%s Option data : %d",TWOSPACES,data[i+1]);
+                i +=2;
+                break;
+            case X_DISPLAY_LOCATION:
+                fprintf(stdout,"X DISPLAY LOCATION\n%s Command : %d",TWOSPACES,data[i+1]);
+                i +=2;
+                break;
+            case X_ENVIRONMENT_OPTION:
+                fprintf(stdout,"New Envirement Option\n%s Option data : %d",TWOSPACES,data[i+1]);
+                i +=2;
+                break;
+            case TERMINAL_TYPE:
+                fprintf(stdout,"TERMINAL TYPE \n%s Command : %d",TWOSPACES,data[i+1]);
+                i +=2;
+                break;
+
+        }
         goto end_loop;
 
 }
