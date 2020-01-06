@@ -14,6 +14,20 @@
 int verbose;
 char *get_dhcp_message_type(unsigned char i);
 
+
+/***
+ * @brief this function is the main routine used to parse tcp segments,
+ *        it parse and display the TCP header, and then depending on
+ *        source port, and destination (Application) a special routine
+ *        parser will be called.
+ *        * if no data EXISTs for any application then this function returns without perfoming anything
+ * @param packet
+ * @param len
+ *
+ * @remarks : this function call the following implemented routines :
+ *            * http_parser(),telnet_parser(),dns_parser(),pop_parser()
+ *              smtp_parser(),ftp_parser,
+ */
 void tcp_handler(const u_char*packet, unsigned int len){
     struct tcphdr* tcpHeader = (struct tcphdr*)packet;
     ushort source = htons(tcpHeader->source);
@@ -44,25 +58,49 @@ void tcp_handler(const u_char*packet, unsigned int len){
         fprintf(stdout,"%s[..]TCP SEGMENT HAS NO DATA\n",TWOSPACES);
         return;
     }
-    if(source == 80 || dest == 80)
-            http_parser(data,data_len);
-    else if(source == 25 || dest == 25)
-            smtp_parser(data,data_len);
-    else if(source == 110 || dest == 110)
+    if(source == 80 || dest == 80){
+        fprintf(stdout,"%s[+] HTTP\n",THREESPACES);
+        http_parser(data,data_len);
+    }
+    else if(source == 25 || dest == 25){
+        fprintf(stdout,"%s[+] SMTP\n",THREESPACES);
+        smtp_parser(data,data_len);
+    }
+    else if(source == 110 || dest == 110){
+        fprintf(stdout,"%s[+] POP3\n",THREESPACES);
         pop_parser(data,data_len);
-    else if(source == 143 || dest == 143)
+    }
+    else if(source == 143 || dest == 143){
+        fprintf(stdout,"%s[+] IMAP\n",THREESPACES);
         imap_parser(data,data_len);
+    }
     else if(source == 21 || dest == 21){
+        fprintf(stdout,"%s[+] FTP\n",THREESPACES);
         ftp_parser(data,data_len);
     }
+    else if(source == 20 || dest == 20){
+        fprintf(stdout,"%s[+] FTP-DATA\n",THREESPACES);
+        ftp_data_parser((const char*)data,data_len);
+    }
     else if(source == 23 || dest == 23){
+        fprintf(stdout,"%s[+] TELNET\n",THREESPACES);
         telnet_parser(data,data_len);
     }
     //else if(source == 53 || dest == 53)
         //dns_parser(data,data_len);
     else
-        fprintf(stdout,"%s[-] Application isn't implemented yet\n",TWOSPACES);
+        fprintf(stdout,"%s[-] Application isn't implemented yet\n",THREESPACES);
 }
+
+/**
+ * @brief this function represents the UDP segments parser, it dumps the main udp components,
+ *        then depending on type of application, a corresponding parsing routine will be called
+ *
+ * @param packet
+ *
+ * @remarks :
+ *              * implemented applications routines for udp are bootp and dns
+ */
 void udp_handler(const u_char* packet){
     struct udphdr* udpHeader = (struct udphdr*)packet;
     ushort sport = htons(udpHeader->source);
@@ -84,6 +122,15 @@ void udp_handler(const u_char* packet){
 
 
 }
+
+
+/**
+ * @brief this is main function which is used to parse bootp messages.
+ * @param packet
+ * @remarks : this routine parse the bootp header until arriving to gen vend
+ *            if DHCP cookie is found than ven spec will be parsed, and dhcp messages
+ *            will be dumped, else nothing will be performed
+ */
 
 void bootp_handler(const u_char* packet){
     struct bootp* bootpHeader = (struct bootp*)packet;

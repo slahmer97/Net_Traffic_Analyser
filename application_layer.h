@@ -49,6 +49,6 @@ void pop_parser(const u_char* data, unsigned int);
 void imap_parser(const u_char*data, unsigned int);
 void ftp_parser(const u_char*data,unsigned int );
 void telnet_parser(const u_char*data,unsigned int );
-
+void ftp_data_parser(const char* data,unsigned int );
 
 #endif //NETWORK_ANA_APPLICATION_LAYER_H

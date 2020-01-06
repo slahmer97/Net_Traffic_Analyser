@@ -61,13 +61,13 @@ void ipv4_handler(const u_char * packet){
     inet_ntop(AF_INET,&(ipHeader->daddr),dip,INET_ADDRSTRLEN);
     fprintf(stdout,"%s[+] IPV4, src : (%s), dst : (%s)\n",ONESPACE,sip,dip);
     if(verbose == 3) {
-        fprintf(stdout,"%s[..] version   : %x\n",ONESPACE,ipHeader->version);
+        fprintf(stdout,"%s[..] version   : 0x%x\n",ONESPACE,ipHeader->version);
         fprintf(stdout,"%s[..] ihl       : %d\n",ONESPACE,ipHeader->ihl);
         fprintf(stdout,"%s[..] ttl       : %d\n",ONESPACE,ipHeader->ttl);
-        fprintf(stdout,"%s[..] checksum  : %x\n",ONESPACE,htons(ipHeader->check));
+        fprintf(stdout,"%s[..] checksum  : 0x%x\n",ONESPACE,htons(ipHeader->check));
         fprintf(stdout,"%s[..] total len : %d\n",ONESPACE,htons(ipHeader->tot_len));
-        fprintf(stdout,"%s[..] id        : %d\n",ONESPACE,ipHeader->id);
-        fprintf(stdout,"%s[..] frag off  : %d\n",ONESPACE,ipHeader->frag_off);
+        fprintf(stdout,"%s[..] id        : %d\n",ONESPACE,htons(ipHeader->id));
+        fprintf(stdout,"%s[..] Flags     : 0x%x\n",ONESPACE,htons(ipHeader->frag_off));
     }
     fflush(stdout);
     unsigned int data_len = htons(ipHeader->tot_len) - (ipHeader->ihl*4);

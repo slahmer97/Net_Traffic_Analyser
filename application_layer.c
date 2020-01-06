@@ -9,6 +9,17 @@
 #include "dns.h"
 #include <ctype.h>
 #include <stdlib.h>
+
+/**
+ * @brief this is the main function which is used by all application parsers defined here
+ *          in order to print ascii and hex dump of any data
+ * @param padding  defines how much spaces to pad output with
+ * @param input    defines data to be displayed
+ * @param size     defined maximum length to be dumped
+ *
+ * @remarks : if size is not multiple of 16, this function will add null bytes in order
+ *              to form the required shape!
+ */
 static void print_box_hex(const char*padding,const char*input,int size){
     int i = 0;
     for (; i <size ;) {
@@ -70,6 +81,12 @@ static void printf_ray_hex(const u_char *padding,const u_char* txt,int len){
     printf("\n");
 
 }
+ */
+
+/**
+ * @brief this function parses http messages.
+ *        it's possible that this functions doesn't
+ *        contain all messages defined in http RFC
  */
 void http_parser(const u_char* data, unsigned int len){
     len++;
@@ -274,6 +291,11 @@ void http_parser(const u_char* data, unsigned int len){
     }
      */
 }
+/**
+ * @brief this function parses smtp messages.
+ *        it's possible that this functions doesn't
+ *        contain all messages defined in smtp RFC
+ */
 void smtp_parser(const u_char* data,unsigned int len ){
     char *string =(char*) data;
     char * token = strtok(string, "\r\n");
@@ -458,6 +480,11 @@ void dns_parser(const u_char*  data,unsigned int len){
 
     //fprintf(stdout,"%sDNS :  %s\n",TWOSPACES,data);
 }
+/**
+ * @brief this function parses pop3 messages.
+ *        it's possible that this functions doesn't
+ *        contain all messages defined in pop3 RFC
+ */
 void pop_parser(const u_char* data, unsigned int len){
     char *string =(char*) data;
     char * token = strtok(string, "\r\n");
@@ -611,6 +638,12 @@ void pop_parser(const u_char* data, unsigned int len){
     printf("DATA:\n");
     print_box_hex(TWOSPACES,input,rest);
 }
+
+/**
+ * @brief this function parses imap messages.
+ *        it's possible that this functions doesn't
+ *        contain all messages defined in imap RFC
+ */
 void imap_parser(const u_char*data,unsigned int len){
     char *string =(char*) data;
     char * token = strtok(string, "\r\n");
@@ -708,6 +741,10 @@ void imap_parser(const u_char*data,unsigned int len){
     printf("DATA:\n");
     print_box_hex(TWOSPACES,input,rest);
 }
+
+/**
+ * @brief this function parses FTP messages which are exchanged in control connection
+ */
 void ftp_parser(const u_char*data,unsigned int len) {
     char *string =(char*) data;
     char * token = strtok(string, "\r\n");
@@ -755,6 +792,9 @@ void ftp_parser(const u_char*data,unsigned int len) {
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
         else if(strncmp(token, "TYPE", 4) == 0){
+            k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
+        }
+        else if(strncmp(token, "RETR", 4) == 0){
             k = printf( "%s%s\n",TWOSPACES,token ) - (TWOSIZE+1);
         }
         else
@@ -902,4 +942,7 @@ void telnet_parser(const u_char*data,unsigned int len) {
         i++;
         goto end_loop;
 
+}
+void ftp_data_parser(const char* data,unsigned int data_len){
+    print_box_hex(THREESPACES,data,(int)data_len);
 }
