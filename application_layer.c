@@ -812,6 +812,15 @@ void ftp_parser(const u_char*data,unsigned int len) {
     print_box_hex(TWOSPACES,input,rest);
 }
 
+/**
+ * @brief this function defines telnet commands parser,
+ *        it's possible that some commands in telnet aren't done here!
+ *        this function check the first bit, if it found that commands exist
+ *        it will perform command parsing, else it will perform normal ascii-hex
+ *        dumping.
+ * @param data
+ * @param len
+ */
 void telnet_parser(const u_char*data,unsigned int len) {
 
     if (data[0] != IAC) {
@@ -973,6 +982,12 @@ void telnet_parser(const u_char*data,unsigned int len) {
         goto end_loop;
 
 }
+
+/**
+ * @brief this function is used to display data passed in ftp data connection.
+ * @param data
+ * @param data_len
+ */
 void ftp_data_parser(const char* data,unsigned int data_len){
     print_box_hex(THREESPACES,data,(int)data_len);
 }
