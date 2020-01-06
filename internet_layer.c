@@ -15,7 +15,16 @@ void internet_layer_handler(const u_char* packet,int version){
     if(version == 6)
         ipv6_handler(packet);
 }
-
+/**
+ * @brief : this functions is main ipv6 parser, it takes @param packet as argument,
+ *          it performs then ipv6 header parsing, then based on protocol type,
+ *          it will forward the rest data to the corresponding parsing routine.
+ * @param packet
+ *
+ * @remarks :
+ *            * No forwarding is implemented. just ipv6 header dumping is performed by this routine.
+ *            * No Optional field is dumped.
+ */
 void ipv6_handler(const u_char * packet){
      struct ipv6hdr * ipv6Header = (struct ipv6hdr *)packet;
      char sip[INET6_ADDRSTRLEN];
@@ -23,12 +32,27 @@ void ipv6_handler(const u_char * packet){
      inet_ntop(AF_INET6, &(ipv6Header->daddr),dip, INET6_ADDRSTRLEN);
      inet_ntop(AF_INET6, &(ipv6Header->saddr),sip, INET6_ADDRSTRLEN);
      fprintf(stdout,"%s[+] IPV6, src : (%s), dst : (%s)\n",ONESPACE,sip,dip);
-     fprintf(stdout,"%s[..] version   : %x\n",TWOSPACES,ipv6Header->version);
-
+    if(verbose == 3) {
+        fprintf(stdout, "%s[..] version   : %x\n", TWOSPACES, ipv6Header->version);
+    }
      fflush(stdout);
 
 
 }
+/**
+ * @brief : this functions is main ipv4 parser, it takes @param packet as argument,
+ *          it performs then ipv4 header parsing, then based on protocol type,
+ *          it will forward the rest data to the corresponding parsing routine.
+ * @param packet
+ *
+ * @remarks :
+ *            * the implemented routines for transport layer are TCP_parser,UDP_parser
+ *            * if protocol is different of ones discussed above, no parsing will be done
+ *              for the rest of data EXCEPT for (OSPF,EGP,IGMP,GGP,ICMP) packet type will
+ *              be displayed if verbose mode is 2 or 3
+ *            * Optional fields in IPV4 are not parsed if they exist in packet BUT also considered
+ *              as exist for the upper layer parsers.
+ */
 void ipv4_handler(const u_char * packet){
     struct iphdr *ipHeader = (struct iphdr *)packet;
     char sip[INET_ADDRSTRLEN];
@@ -62,10 +86,14 @@ void ipv4_handler(const u_char * packet){
             }
             break;
         case 0x02: //IGMP
-
+            if(verbose == 3 || verbose == 2){
+                fprintf(stdout,"%s[+] IGMP   \n",THREESPACES);
+            }
             break;
         case 0x03: // GGP
-
+            if(verbose == 3 || verbose == 2){
+                fprintf(stdout,"%s[+] GGP   \n",THREESPACES);
+            }
             break;
         case 0x06:// TCP
             if(verbose >= 2){
@@ -73,7 +101,9 @@ void ipv4_handler(const u_char * packet){
             }
             break;
         case 0x08: //EGP
-
+            if(verbose == 3 || verbose == 2){
+                fprintf(stdout,"%s[+] EGP   \n",THREESPACES);
+            }
             break;
         case 0x11: // UDP
             if(verbose >= 2)
@@ -81,7 +111,9 @@ void ipv4_handler(const u_char * packet){
             break;
 
         case 0x59: // OSPF
-
+            if(verbose == 3 || verbose == 2){
+                fprintf(stdout,"%s[+] OSPF   \n",THREESPACES);
+            }
             break;
 
     }
