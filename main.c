@@ -37,8 +37,22 @@ void display_all_int(pcap_if_t * t){
     }
 }
  */
-
+/**
+ * @brief            : this function represents the main function used to perform live packet capturing.
+ * @param  interface : represents the name of interface which to start capturing from
+ * @param  filter    : represents the filter expression for filtering captured packets
+ * @return           :  void
+ * @author           : seyyid-ahmed LAHMER
+ */
 void live_capture(const char* interface,char*filter);
+
+/**
+ * @brief           : this function represents the main function used to perform offlive(file based) packet capturing.
+ * @param  file     : represents the file to be parsed and which is .cap format
+ * @param  filter   : represents the filter expression for filtering captured packets
+ * @return          :  void
+ * @author          : seyyid-ahmed LAHMER
+ */
 void offline_capture(const char*file,char*filter);
 int verbose;
 int main(int argc,char**argv) {

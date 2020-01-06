@@ -20,6 +20,20 @@ char * ether_type_str[] = {
         [ETHERTYPE_ARP]    = "ARP",
         [ETHERTYPE_REVARP] = "Reverse ARP"
 };
+/**
+ * @brief : this function defines the callback, which will be called on the arriving of frame
+ *          on the arrival of each frame, there will be four possible ways (which are already implemented ) :
+ *          * if ether_type indicates that there's an ipv6 ip packet encapsulated, so ipv6 parser will be called.
+ *          * if ether_type indicates that there's an ipv4 ip packet encapsulated, so ipv4 parser will be called.
+ *          * if ether_type indicates that there's an arp frame encapsulated, so arp_parser will be called.
+ *          * if ether_type indicates that there's an rarp frame encapsulated, so rarp parser will be called.
+ * @param useless
+ * @param pkthdr
+ * @param p : represents frame data.
+ * @remarks : this functions copy the received data into an internal buffer which is reseted to 0 each time
+ *            link_layer_handler() is started.
+ *
+ */
 void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u_char*p){
     useless++;
     static int count = 1;
@@ -37,9 +51,6 @@ void link_layer_handler(u_char *useless,const struct pcap_pkthdr* pkthdr,const u
     fprintf(stdout,"[+] %s (%x), Src : (%s), Dst : ","Ethernet II",
             type,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost));
     fprintf(stdout,"(%s) \n",ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
-  //  fprintf(stdout,"%s[+] ethertype : %x\n",TWOSPACES,type);
-  //  fprintf(stdout,"%s[+] source mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_shost));
-   // fprintf(stdout,"%s[+] destination mac : %s\n",TWOSPACES,ether_ntoa((const struct ether_addr *)&etherHeader->ether_dhost));
 
     int ether_header_size = sizeof( struct ether_header);
     //SAVE
