@@ -820,6 +820,8 @@ void ftp_parser(const u_char*data,unsigned int len) {
  *        dumping.
  * @param data
  * @param len
+ *
+ * @remarks : commands refs were gotten from : https://www.iana.org/assignments/telnet-options/telnet-options.xhtml
  */
 void telnet_parser(const u_char*data,unsigned int len) {
 
